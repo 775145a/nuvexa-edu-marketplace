@@ -23,7 +23,7 @@ app.use(globalLimiter);
 
 app.use(config.apiPrefix, routes);
 
-app.get('/health', async (_req, res) => {
+const healthHandler = async (_req: express.Request, res: express.Response) => {
   const db = { status: 'up' as string };
   try {
     await Promise.race([
@@ -43,7 +43,10 @@ app.get('/health', async (_req, res) => {
     memory: Math.round(process.memoryUsage().rss / 1024 / 1024),
     timestamp: new Date().toISOString(),
   });
-});
+};
+
+app.get('/health', healthHandler);
+app.get(`${config.apiPrefix}/health`, healthHandler);
 
 app.use(notFound);
 app.use(errorHandler);
