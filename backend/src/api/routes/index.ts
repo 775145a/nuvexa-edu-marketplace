@@ -17,6 +17,12 @@ import { prisma } from '../../services/prisma';
 
 const router = Router();
 
+const coursePublicInclude = {
+  instructor: { select: { id: true, fullName: true, avatarUrl: true } },
+  category: { select: { id: true, name: true, nameAr: true, slug: true } },
+  _count: { select: { enrollments: true, reviews: true } },
+};
+
 router.use('/auth', authRoutes);
 router.use('/courses', courseRoutes);
 router.use('/categories', categoryRoutes);
@@ -31,6 +37,75 @@ router.use('/', storageRoutes);
 router.use('/', videoJobRoutes);
 router.use('/coupons', couponRoutes);
 router.use('/', lectureCommentRoutes);
+
+router.get('/stats', async (_req, res) => {
+  try {
+    const [
+      approvedCourses,
+      students,
+      instructors,
+      users,
+      enrollments,
+      completedOrders,
+      reviews,
+      latest,
+      topSelling,
+      topRated,
+    ] = await Promise.all([
+      prisma.course.count({ where: { status: 'APPROVED' } }),
+      prisma.user.count({ where: { role: 'STUDENT', isActive: true } }),
+      prisma.user.count({ where: { role: 'INSTRUCTOR', isActive: true } }),
+      prisma.user.count({ where: { isActive: true } }),
+      prisma.enrollment.count(),
+      prisma.order.count({ where: { status: 'COMPLETED' } }),
+      prisma.review.count(),
+      prisma.course.findMany({
+        where: { status: 'APPROVED' },
+        orderBy: { createdAt: 'desc' },
+        take: 8,
+        include: coursePublicInclude,
+      }),
+      prisma.course.findMany({
+        where: { status: 'APPROVED' },
+        orderBy: { enrollmentCount: 'desc' },
+        take: 8,
+        include: coursePublicInclude,
+      }),
+      prisma.course.findMany({
+        where: { status: 'APPROVED', averageRating: { gt: 0 } },
+        orderBy: [{ averageRating: 'desc' }, { enrollmentCount: 'desc' }],
+        take: 8,
+        include: coursePublicInclude,
+      }),
+    ]);
+
+    const revenueAgg = await prisma.order.aggregate({
+      where: { status: 'COMPLETED' },
+      _sum: { total: true },
+    });
+
+    res.json({
+      success: true,
+      data: {
+        counts: {
+          courses: approvedCourses,
+          students,
+          instructors,
+          users,
+          enrollments,
+          sales: completedOrders,
+          revenue: revenueAgg._sum.total || 0,
+          reviews,
+        },
+        latest,
+        topSelling,
+        topRated,
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 
 router.get('/instructors', async (_req, res) => {
   try {

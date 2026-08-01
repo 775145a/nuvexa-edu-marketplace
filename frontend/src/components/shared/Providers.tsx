@@ -13,6 +13,12 @@ export function Providers({ children }: { children: ReactNode }) {
       document.documentElement.dir = 'rtl';
       document.documentElement.lang = 'ar';
     }
+
+    const storedTheme = localStorage.getItem('nuvexa_theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = storedTheme ? storedTheme === 'dark' : prefersDark;
+    document.documentElement.classList.toggle('dark', isDark);
+    window.dispatchEvent(new CustomEvent('nuvexa-theme', { detail: isDark }));
   }, []);
 
   return <I18nProvider>{children}</I18nProvider>;

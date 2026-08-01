@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { PageLoader } from '@/components/ui/Primitives';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/Avatar';
 import { formatDate, cn } from '@/lib/utils';
-import { Users, GraduationCap, BookOpen, ShieldCheck, Search, Power, BadgeCheck } from 'lucide-react';
+import { Users, GraduationCap, BookOpen, ShieldCheck, Search, Power, BadgeCheck, Phone } from 'lucide-react';
 
 const ROLE_STYLES: Record<string, { label: string; gradient: string; variant: any }> = {
   ADMIN: { label: 'Admin', gradient: 'bg-gradient-purple', variant: 'secondary' },
@@ -46,7 +46,9 @@ export default function AdminUsersPage() {
   const filtered = users.filter((u) => {
     const q = query.trim().toLowerCase();
     if (!q) return true;
-    return (u.fullName || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q);
+    return (u.fullName || '').toLowerCase().includes(q)
+      || (u.email || '').toLowerCase().includes(q)
+      || (u.phone || '').toLowerCase().includes(q);
   });
 
   return (
@@ -76,11 +78,12 @@ export default function AdminUsersPage() {
       ) : (
         <Card className="mt-4 overflow-hidden">
           <div className="hidden grid-cols-12 gap-4 border-b border-border bg-muted/40 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground md:grid">
-            <div className="col-span-4">{t.common.name}</div>
-            <div className="col-span-3">{t.common.email}</div>
+            <div className="col-span-3">{t.common.name}</div>
+            <div className="col-span-2">{t.common.email}</div>
+            <div className="col-span-2">{t.dash.phoneLabel}</div>
             <div className="col-span-1 text-center">{t.common.role}</div>
-            <div className="col-span-2 text-center">{t.dash.avgRating}</div>
-            <div className="col-span-1 text-center">{t.dash.statusDistribution}</div>
+            <div className="col-span-2 text-center">{t.dash.joinedAt}</div>
+            <div className="col-span-1 text-center">{t.common.status}</div>
             <div className="col-span-1 text-end">{t.common.actions}</div>
           </div>
           <div className="divide-y divide-border">
@@ -88,7 +91,7 @@ export default function AdminUsersPage() {
               const role = ROLE_STYLES[user.role] || ROLE_STYLES.STUDENT;
               return (
                 <div key={user.id} className="grid grid-cols-1 items-center gap-4 px-5 py-3.5 transition-colors hover:bg-muted/30 md:grid-cols-12">
-                  <div className="col-span-4 flex items-center gap-3">
+                  <div className="col-span-3 flex items-center gap-3">
                     <Avatar className="h-9 w-9">
                       <AvatarImage src={user.avatarUrl || ''} />
                       <AvatarFallback className={cn('text-xs font-bold text-white', role.gradient)}>{user.fullName?.[0]}</AvatarFallback>
@@ -102,7 +105,14 @@ export default function AdminUsersPage() {
                     </div>
                   </div>
 
-                  <div className="col-span-3 truncate text-sm text-muted-foreground">{user.email}</div>
+                  <div className="col-span-2 truncate text-sm text-muted-foreground">{user.email}</div>
+
+                  <div className="col-span-2 truncate text-sm" dir="ltr">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-muted/30 px-2 py-1 font-medium">
+                      <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                      {user.phone || '—'}
+                    </span>
+                  </div>
 
                   <div className="col-span-1 text-center">
                     <Badge variant={role.variant}>{user.role}</Badge>

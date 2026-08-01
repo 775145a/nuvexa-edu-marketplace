@@ -77,7 +77,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl gradient-primary text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="btn-gradient w-full py-3 rounded-xl text-white font-semibold"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

@@ -127,6 +127,15 @@ export const categoryApi = {
   list: () => request('/categories'),
 };
 
+export const statsApi = {
+  get: () => request('/stats'),
+};
+
+export const SUPPORT_PHONE = '01003677165';
+export const SUPPORT_PHONE_INTL = '201003677165';
+export const WHATSAPP_LINK = (message: string) =>
+  `https://wa.me/${SUPPORT_PHONE_INTL}?text=${encodeURIComponent(message)}`;
+
 export const videoJobApi = {
   get: (id: string) => request(`/video-jobs/${id}`),
   my: () => request('/video-jobs/my'),

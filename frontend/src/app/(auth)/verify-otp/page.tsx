@@ -15,6 +15,7 @@ function VerifyOtpForm() {
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -71,11 +72,16 @@ function VerifyOtpForm() {
 
   const handleResend = async () => {
     setResending(true);
+    setSuccess('');
+    setError('');
     try {
       const pending = JSON.parse(localStorage.getItem('pendingVerification') || '{}');
       const email = pending.email || '';
       await authApi.resendOtp({ email, type });
-    } catch { }
+      setSuccess(t.auth.otpResent);
+    } catch {
+      setError(t.common.error);
+    }
     setResending(false);
   };
 
@@ -93,6 +99,10 @@ function VerifyOtpForm() {
 
           {error && (
             <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 text-red-600 dark:text-red-400 text-sm">{error}</div>
+          )}
+
+          {success && (
+            <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 text-green-600 dark:text-green-400 text-sm">{success}</div>
           )}
 
           <form onSubmit={handleSubmit}>
@@ -115,7 +125,7 @@ function VerifyOtpForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl gradient-primary text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 mb-4"
+              className="btn-gradient w-full py-3 rounded-xl text-white font-semibold mb-4"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

@@ -97,10 +97,59 @@ body {
   .gradient-navy {
     background: linear-gradient(135deg, #0b1224 0%, #101c3a 40%, #16285c 100%);
   }
+  .gradient-primary {
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 55%, #06b6d4 130%);
+  }
+  .gradient-primary-soft {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.12) 0%, rgba(124, 58, 237, 0.12) 55%, rgba(6, 182, 212, 0.12) 130%);
+  }
+  .gradient-border {
+    position: relative;
+    background-clip: padding-box;
+  }
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.5), rgba(124, 58, 237, 0.5), rgba(6, 182, 212, 0.5));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  .btn-gradient {
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 55%, #06b6d4 130%);
+    background-size: 150% 150%;
+    transition: background-position 0.35s ease, transform 0.2s ease, box-shadow 0.25s ease;
+    box-shadow: 0 8px 24px -8px rgba(37, 99, 235, 0.45), 0 4px 12px -4px rgba(124, 58, 237, 0.35);
+  }
+  .btn-gradient:hover:not(:disabled) {
+    background-position: 100% 50%;
+    transform: translateY(-1px);
+    box-shadow: 0 14px 32px -10px rgba(37, 99, 235, 0.55), 0 8px 20px -6px rgba(6, 182, 212, 0.4);
+  }
+  .btn-gradient:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+  }
+  .btn-gradient:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
   .gradient-hero {
-    background: radial-gradient(1200px 500px at 20% -10%, rgba(124, 58, 237, 0.28) 0%, transparent 55%),
-      radial-gradient(1000px 500px at 90% 0%, rgba(0, 190, 212, 0.22) 0%, transparent 55%),
-      linear-gradient(135deg, #0b1224 0%, #101c3a 50%, #0d1f3d 100%);
+    background:
+      radial-gradient(1100px 480px at 12% -8%, rgba(99, 102, 241, 0.30) 0%, transparent 55%),
+      radial-gradient(900px 460px at 95% -6%, rgba(34, 211, 238, 0.25) 0%, transparent 55%),
+      radial-gradient(700px 520px at 80% 110%, rgba(124, 58, 237, 0.28) 0%, transparent 55%),
+      linear-gradient(135deg, #0b1224 0%, #101c3a 46%, #0d1f3d 100%);
+  }
+  .card-hover {
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 48px -16px rgba(30, 64, 175, 0.18), 0 8px 24px -12px rgba(124, 58, 237, 0.14);
   }
   .gradient-text {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-secondary via-accent to-success;
