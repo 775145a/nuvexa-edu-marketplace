@@ -1,0 +1,23 @@
+node_modules/
+dist/
+.next/
+.env
+.env.local
+.env.*
+!.env.example
+*.log
+uploads/*
+!uploads/.gitkeep
+logs/
+.DS_Store
+*.tsbuildinfo
+
+# SQLite databases contain real user/payment data — never commit
+*.db
+*.db-journal
+backend/prisma/*.db
+backend/prisma/*.db-journal
+
+# Local temp / OS
+*.tmp
+Thumbs.db

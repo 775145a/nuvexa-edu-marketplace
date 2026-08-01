@@ -1,0 +1,21 @@
+{
+  "name": "edu-marketplace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Premium Course Marketplace Platform - Nuvexa",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build",
+    "db:migrate": "cd backend && npx prisma migrate dev",
+    "db:seed": "cd backend && npx prisma db seed",
+    "db:studio": "cd backend && npx prisma studio",
+    "test:e2e": "node e2e/happy-path.mjs",
+    "test:load:catalog": "k6 run load-tests/k6.catalog.js",
+    "test:load:checkout": "k6 run load-tests/k6.checkout.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

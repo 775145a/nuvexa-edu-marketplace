@@ -1,0 +1,70 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: nuvexa
+      POSTGRES_PASSWORD: nuvexa_secret
+      POSTGRES_DB: nuvexa
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nuvexa"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redisdata:/data
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    env_file: ./backend/.env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://nuvexa:nuvexa_secret@db:5432/nuvexa?schema=public
+      REDIS_URL: redis://redis:6379
+      CACHE_PROVIDER: redis
+      QUEUE_PROVIDER: redis
+      TRUST_PROXY: "true"
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://example.com}
+      PLATFORM_URL: ${PLATFORM_URL:-https://example.com}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - uploads:/app/uploads
+      - backendlogs:/app/logs
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${PUBLIC_API_URL:-http://backend:5000/api/v1}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata:
+  uploads:
+  backendlogs:
