@@ -11,6 +11,7 @@ uploads/*
 logs/
 .DS_Store
 *.tsbuildinfo
+backend/generated/
 
 # SQLite databases contain real user/payment data — never commit
 *.db

@@ -1,9 +1,15 @@
 import rateLimit from 'express-rate-limit';
+import { Request } from 'express';
 import { config } from '../../config';
 
 const common = {
   standardHeaders: 'draft-7',
   legacyHeaders: false,
+  validate: { ip: false, trustProxy: false },
+  keyGenerator: (req: Request): string =>
+    (req.ip as string) ||
+    ((req.headers['x-forwarded-for'] as string) || '').split(',')[0] ||
+    'unknown',
 } as const;
 
 export const globalLimiter = rateLimit({

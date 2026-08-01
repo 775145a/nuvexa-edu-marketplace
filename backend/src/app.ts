@@ -26,9 +26,13 @@ app.use(config.apiPrefix, routes);
 app.get('/health', async (_req, res) => {
   const db = { status: 'up' as string };
   try {
-    await prisma.$queryRaw`SELECT 1`;
-  } catch {
+    await Promise.race([
+      prisma.$queryRaw`SELECT 1`,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('DB query timeout')), 8000)),
+    ]);
+  } catch (err) {
     db.status = 'down';
+    console.error('[health] DB check failed:', (err as Error).message);
   }
   const healthy = db.status === 'up';
   res.status(healthy ? 200 : 503).json({
