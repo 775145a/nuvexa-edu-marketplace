@@ -7,7 +7,7 @@ import { statsApi, categoryApi, authApi, WHATSAPP_LINK } from '@/lib/api';
 import { CourseCard } from '@/components/shared/CourseCard';
 import { WhatsAppButton } from '@/components/shared/WhatsAppButton';
 import {
-  PlayCircle, BookOpen, GraduationCap, Users, ShoppingBag, Wallet,
+  PlayCircle, BookOpen, GraduationCap, Users, ShoppingBag,
   Mail, ArrowUpRight, Sparkles, Headset, CheckCircle2,
 } from 'lucide-react';
 
@@ -103,19 +103,11 @@ export default function HomePage() {
       {/* ============ LIVE STATS ============ */}
       <section className="relative z-10 -mt-10 px-4">
         <div className="container">
-          <div className="glass-card grid grid-cols-2 gap-6 rounded-2xl p-6 md:grid-cols-5 md:p-8">
+          <div className="glass-card grid grid-cols-2 gap-6 rounded-2xl p-6 md:grid-cols-4 md:p-8">
             <StatItem label={t.home.statsLabelCourses} value={counts.courses} icon={<BookOpen className="h-5 w-5" />} loading={loading} />
             <StatItem label={t.home.statsLabelStudents} value={counts.students} icon={<Users className="h-5 w-5" />} loading={loading} />
             <StatItem label={t.home.statsLabelInstructors} value={counts.instructors} icon={<GraduationCap className="h-5 w-5" />} loading={loading} />
             <StatItem label={t.home.statsLabelSales} value={counts.sales} icon={<ShoppingBag className="h-5 w-5" />} loading={loading} />
-            <StatItem
-              label={t.home.statsLabelRevenue}
-              value={counts.revenue}
-              prefix=""
-              suffix=" EGP"
-              icon={<Wallet className="h-5 w-5" />}
-              loading={loading}
-            />
           </div>
         </div>
       </section>

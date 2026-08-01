@@ -41,7 +41,6 @@ const ar = {
     statsLabelStudents: 'طالب مسجّل',
     statsLabelInstructors: 'مدرس',
     statsLabelSales: 'مبيعات',
-    statsLabelRevenue: 'إجمالي الأرباح',
     instructorsTitle: 'مدرسونا',
     instructorsDesc: 'مدرّسون محترفون من نخبة الخبراء في مجالاتهم',
     heroBadge: 'منصة Nuvexa للتعليم عبر الإنترنت',

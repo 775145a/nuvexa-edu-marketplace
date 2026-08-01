@@ -79,11 +79,6 @@ router.get('/stats', async (_req, res) => {
       }),
     ]);
 
-    const revenueAgg = await prisma.order.aggregate({
-      where: { status: 'COMPLETED' },
-      _sum: { total: true },
-    });
-
     res.json({
       success: true,
       data: {
@@ -94,7 +89,6 @@ router.get('/stats', async (_req, res) => {
           users,
           enrollments,
           sales: completedOrders,
-          revenue: revenueAgg._sum.total || 0,
           reviews,
         },
         latest,

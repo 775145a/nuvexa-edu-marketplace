@@ -41,7 +41,6 @@ const en = {
     statsLabelStudents: 'Students',
     statsLabelInstructors: 'Instructors',
     statsLabelSales: 'Sales',
-    statsLabelRevenue: 'Revenue',
     instructorsTitle: 'Our Instructors',
     instructorsDesc: 'Professional instructors from the top experts in their fields',
     heroBadge: 'Nuvexa — Online Learning Platform',
