@@ -168,6 +168,7 @@ export const adminApi = {
   reviewCourse: (id: string, data: any) => request(`/admin/courses/${id}/review`, { method: 'PUT', body: JSON.stringify(data) }),
   monitoring: () => request('/admin/monitoring'),
   users: () => request('/admin/users'),
+  userDetail: (id: string) => request(`/admin/users/${id}`),
   toggleUserStatus: (id: string) => request(`/admin/users/${id}/toggle-status`, { method: 'PUT' }),
   orders: () => request('/admin/orders'),
   pendingPayments: () => request('/admin/payments/pending'),

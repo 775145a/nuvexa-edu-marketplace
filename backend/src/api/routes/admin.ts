@@ -206,6 +206,98 @@ router.get('/users', async (_req: AuthRequest, res) => {
   }
 });
 
+router.get('/users/:id', async (req: AuthRequest, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.params.id },
+      select: {
+        id: true, fullName: true, email: true, phone: true, role: true, isActive: true,
+        isVerified: true, avatarUrl: true, createdAt: true,
+        studentProfile: true,
+        instructorProfile: true,
+        _count: { select: { courses: true, enrollments: true, certificates: true, reviews: true, orders: true } },
+      },
+    });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    let courses: any[] = [];
+    let stats: any = { _count: user._count };
+    let activity: any = {};
+
+    if (user.role === 'INSTRUCTOR') {
+      courses = await prisma.course.findMany({
+        where: { instructorId: user.id },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true, title: true, slug: true, price: true, discountedPrice: true, status: true,
+          enrollmentCount: true, averageRating: true, totalRevenue: true, thumbnailUrl: true, createdAt: true,
+          _count: { select: { enrollments: true, reviews: true } },
+        },
+      });
+      const courseIds = courses.map((c) => c.id);
+      const sales = await prisma.orderItem.findMany({
+        where: { courseId: { in: courseIds }, order: { status: 'COMPLETED' } },
+        select: { price: true },
+      });
+      const commissionRate = process.env.DEFAULT_COMMISSION_RATE ? parseFloat(process.env.DEFAULT_COMMISSION_RATE) : 15;
+      const totalRevenue = courses.reduce((s, c) => s + (c.totalRevenue || 0), 0);
+      stats = {
+        ...stats,
+        courseCount: courses.length,
+        approvedCount: courses.filter((c) => c.status === 'APPROVED').length,
+        pendingCount: courses.filter((c) => c.status === 'PENDING_REVIEW').length,
+        rejectedCount: courses.filter((c) => c.status === 'REJECTED').length,
+        totalStudents: courses.reduce((s, c) => s + (c.enrollmentCount || 0), 0),
+        totalRevenue,
+        salesCount: sales.length,
+        averageRating: courses.length
+          ? Math.round((courses.reduce((s, c) => s + (c.averageRating || 0), 0) / courses.length) * 10) / 10
+          : 0,
+        commissionRate,
+        pendingPayout: Math.round(totalRevenue * (1 - commissionRate / 100) * 100) / 100,
+      };
+    } else if (user.role === 'STUDENT') {
+      const [enrollments, orders] = await Promise.all([
+        prisma.enrollment.findMany({
+          where: { studentId: user.id },
+          orderBy: { enrolledAt: 'desc' },
+          take: 50,
+          include: {
+            course: {
+              select: {
+                id: true, title: true, slug: true, thumbnailUrl: true, level: true, price: true,
+                instructor: { select: { fullName: true } },
+              },
+            },
+          },
+        }),
+        prisma.order.findMany({
+          where: { studentId: user.id },
+          orderBy: { createdAt: 'desc' },
+          take: 50,
+          include: {
+            items: { include: { course: { select: { id: true, title: true } } } },
+          },
+        }),
+      ]);
+      const totalSpent = await prisma.order.aggregate({
+        where: { studentId: user.id, status: 'COMPLETED' },
+        _sum: { total: true },
+      });
+      activity = { enrollments, orders };
+      stats = {
+        ...stats,
+        totalSpent: totalSpent._sum.total || 0,
+        completedOrders: orders.filter((o) => o.status === 'COMPLETED').length,
+      };
+    }
+
+    res.json({ success: true, data: { ...user, courses, stats, activity } });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 router.put('/users/:id/toggle-status', async (req: AuthRequest, res) => {
   try {
     const user = await prisma.user.findUnique({ where: { id: req.params.id } });
