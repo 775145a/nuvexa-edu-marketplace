@@ -44,11 +44,10 @@ const en = {
     statsLabelRevenue: 'Revenue',
     instructorsTitle: 'Our Instructors',
     instructorsDesc: 'Professional instructors from the top experts in their fields',
-    heroBadge: 'The fastest growing learning platform',
+    heroBadge: 'Nuvexa — Online Learning Platform',
     heroCtaSecondary: 'Browse Courses',
     emptyCourses: 'No courses yet',
     emptyCoursesDesc: 'We are launching professional courses in all fields soon',
-    trustedBy: 'Trusted by thousands of learners around the world',
   },
   courses: {
     title: 'Courses',

@@ -97,17 +97,6 @@ export default function HomePage() {
               {t.home.browseCourses}
             </Link>
           </div>
-
-          <div className="animate-fade-up mx-auto mt-12 flex max-w-2xl flex-col items-center justify-center gap-3 sm:flex-row" style={{ animationDelay: '320ms' }}>
-            <div className="flex -space-x-2">
-              {['bg-indigo-500', 'bg-violet-500', 'bg-cyan-500', 'bg-emerald-500'].map((c, i) => (
-                <div key={i} className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#0d1f3d] ${c} font-bold text-white`}>
-                  {['أ', 'م', 'س', 'ن'][i]}
-                </div>
-              ))}
-            </div>
-            <p className="text-sm text-white/60">{t.home.trustedBy}</p>
-          </div>
         </div>
       </section>
 

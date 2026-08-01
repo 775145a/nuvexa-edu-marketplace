@@ -44,11 +44,10 @@ const ar = {
     statsLabelRevenue: 'إجمالي الأرباح',
     instructorsTitle: 'مدرسونا',
     instructorsDesc: 'مدرّسون محترفون من نخبة الخبراء في مجالاتهم',
-    heroBadge: 'منصة التعليم الأسرع نموًا',
+    heroBadge: 'منصة Nuvexa للتعليم عبر الإنترنت',
     heroCtaSecondary: 'تصفح الكورسات',
     emptyCourses: 'لا توجد كورسات بعد',
     emptyCoursesDesc: 'سنطلق قريبًا كورسات احترافية في جميع المجالات',
-    trustedBy: 'موثوق من آلاف المتعلمين حول العالم',
   },
   courses: {
     title: 'الكورسات',
