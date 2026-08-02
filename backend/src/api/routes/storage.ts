@@ -4,10 +4,12 @@ import path from 'path';
 import crypto from 'crypto';
 import multer from 'multer';
 import { config } from '../../config';
-import { authenticate, authorize } from '../middleware/auth';
+import { prisma } from '../../services/prisma';
+import { authenticate, authorize, AuthRequest } from '../middleware/auth';
 import { uploadLimiter } from '../middleware/rateLimit';
 import { getStorage, isLocalStorage, LocalStorageProvider } from '../../services/storage';
 import { logger } from '../../services/logger';
+import { canAccessCourse } from '../../services/access';
 
 const router = Router();
 
@@ -228,6 +230,45 @@ router.post('/storage/sign', uploadLimiter, authenticate, authorize('ADMIN', 'IN
     }
     const storage = getStorage();
     const url = await storage.getSignedUrl(key, {
+      expirySeconds: config.storage.signedUrlTtl,
+      downloadName,
+    });
+    res.json({ success: true, data: { url } });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+router.post('/storage/sign-lecture', uploadLimiter, authenticate, async (req: AuthRequest, res) => {
+  try {
+    const { lectureId, downloadName } = req.body;
+    if (!lectureId) return res.status(400).json({ success: false, message: 'lectureId is required' });
+
+    const lecture = await prisma.courseLecture.findUnique({
+      where: { id: lectureId },
+      select: {
+        id: true,
+        videoStorageKey: true,
+        isFree: true,
+        isPreview: true,
+        section: { select: { courseId: true } },
+      },
+    });
+    if (!lecture) return res.status(404).json({ success: false, message: 'Lecture not found' });
+
+    const allowed =
+      lecture.isFree ||
+      lecture.isPreview ||
+      (await canAccessCourse(lecture.section.courseId, req.userId, req.userRole));
+    if (!allowed) {
+      return res.status(403).json({ success: false, message: 'Enrollment required to play this lecture' });
+    }
+    if (!lecture.videoStorageKey) {
+      return res.status(404).json({ success: false, message: 'No stored video for this lecture' });
+    }
+
+    const storage = getStorage();
+    const url = await storage.getSignedUrl(lecture.videoStorageKey, {
       expirySeconds: config.storage.signedUrlTtl,
       downloadName,
     });

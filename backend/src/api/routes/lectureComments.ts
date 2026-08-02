@@ -19,7 +19,7 @@ async function canInteract(lectureId: string, userId: string, role?: string): Pr
   return !!enrollment;
 }
 
-router.get('/lectures/:lectureId/questions', async (req, res) => {
+router.get('/lectures/:lectureId/questions', authenticate, async (req: AuthRequest, res) => {
   try {
     const { lectureId } = req.params;
     const { page = '1', limit = '20' } = req.query;
@@ -28,6 +28,9 @@ router.get('/lectures/:lectureId/questions', async (req, res) => {
 
     const lecture = await prisma.courseLecture.findUnique({ where: { id: lectureId } });
     if (!lecture) return res.status(404).json({ success: false, message: 'Lecture not found' });
+
+    const allowed = await canInteract(lectureId, req.userId!, req.userRole);
+    if (!allowed) return res.status(403).json({ success: false, message: 'Enrollment required' });
 
     const where = { lectureId, parentId: null };
     const [total, questions] = await Promise.all([

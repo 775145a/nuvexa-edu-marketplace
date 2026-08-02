@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useI18n } from '@/lib/i18n/I18nProvider';
-import { courseApi, examApi, studentApi, qaApi } from '@/lib/api';
+import { courseApi, examApi, studentApi, qaApi, storageApi } from '@/lib/api';
 
 function LectureVideo({ src }: { src: string }) {
   const ref = useRef<HTMLVideoElement>(null);
@@ -206,6 +206,25 @@ export default function LearnPage() {
   const [loading, setLoading] = useState(true);
   const [sections, setSections] = useState<any[]>([]);
   const [activeLecture, setActiveLecture] = useState<any>(null);
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
+  const [videoError, setVideoError] = useState(false);
+
+  const loadVideoSrc = useCallback(async (lecture: any) => {
+    setVideoSrc(null);
+    setVideoError(false);
+    if (!lecture) return;
+    if (!lecture.videoStorageKey && !lecture.videoUrl) return;
+    try {
+      const res = await storageApi.signLecture(lecture.id);
+      if (res?.data?.url) setVideoSrc(res.data.url);
+    } catch {
+      setVideoError(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadVideoSrc(activeLecture);
+  }, [activeLecture, loadVideoSrc]);
 
   // Exam taking state
   const [activeExam, setActiveExam] = useState<any>(null);
@@ -352,7 +371,7 @@ export default function LearnPage() {
                 {(section.lectures || []).map((lecture: any) => (
                   <button key={lecture.id} onClick={() => { setActiveLecture(lecture); setActiveExam(null); }}
                     className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${activeLecture?.id === lecture.id ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted/30'}`}>
-                    <span className="text-xs">{lecture.videoUrl ? '🎬' : '📄'}</span>
+                    <span className="text-xs">{lecture.videoStorageKey || lecture.videoUrl ? '🎬' : '📄'}</span>
                     <span className="truncate">{locale === 'ar' ? (lecture.titleAr || lecture.title) : lecture.title}</span>
                   </button>
                 ))}
@@ -372,9 +391,19 @@ export default function LearnPage() {
         <div className="flex-1 p-8 overflow-y-auto h-screen">
           {activeLecture ? (
             <div className="max-w-4xl mx-auto">
-              {activeLecture.videoUrl ? (
+              {videoSrc ? (
                 <div className="aspect-video bg-black rounded-2xl overflow-hidden mb-6">
-                  <LectureVideo src={activeLecture.videoUrl} />
+                  <LectureVideo src={videoSrc} />
+                </div>
+              ) : videoError ? (
+                <div className="aspect-video bg-red-500/10 rounded-2xl flex items-center justify-center mb-6 text-center">
+                  <div className="text-sm text-red-400">
+                    {locale === 'ar' ? 'فشل تحميل الفيديو' : 'Failed to load video'}
+                  </div>
+                </div>
+              ) : (activeLecture.videoStorageKey || activeLecture.videoUrl) ? (
+                <div className="aspect-video bg-black rounded-2xl flex items-center justify-center mb-6">
+                  <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary border-t-transparent" />
                 </div>
               ) : (
                 <div className="aspect-video bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl flex items-center justify-center mb-6">

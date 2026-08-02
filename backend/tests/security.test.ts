@@ -281,3 +281,118 @@ describe('Security: storage signing restriction', () => {
     expect([200, 500]).toContain(res.status);
   });
 });
+
+describe('Security: paid content access control', () => {
+  let instructor: any;
+  let student: any;
+  let enrolledStudent: any;
+  let course: any;
+  let lecture: any;
+  let slug: string;
+
+  beforeAll(async () => {
+    instructor = await prisma.user.create({
+      data: { email: `cont-i-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.com`, passwordHash: 'x', fullName: 'Content Inst', role: 'INSTRUCTOR' },
+    });
+    student = await prisma.user.create({
+      data: { email: `cont-s-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.com`, passwordHash: 'x', fullName: 'Content Student', role: 'STUDENT' },
+    });
+    enrolledStudent = await prisma.user.create({
+      data: { email: `cont-e-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.com`, passwordHash: 'x', fullName: 'Enrolled Student', role: 'STUDENT' },
+    });
+
+    const category = await prisma.category.findFirst();
+    slug = `paid-content-${Date.now()}`;
+    course = await prisma.course.create({
+      data: {
+        instructorId: instructor.id,
+        title: `Paid Content ${Date.now()}`,
+        slug,
+        description: 'paid content course',
+        price: 100,
+        currency: 'EGP',
+        status: 'APPROVED',
+        isPublished: true,
+        categoryId: category?.id || 'x',
+        sections: {
+          create: [
+            {
+              title: 'S1',
+              order: 0,
+              lectures: {
+                create: [
+                  {
+                    title: 'L1',
+                    order: 0,
+                    videoUrl: 'https://fake.example/lecture-1.mp4',
+                    videoStorageKey: 'lectures/2026/secret-1.mp4',
+                    attachments: JSON.stringify([{ name: 'pdf', url: 'https://fake.example/res.pdf' }]),
+                    isFree: false,
+                    isPreview: false,
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    const section = await prisma.courseSection.findFirstOrThrow({ where: { courseId: course.id } });
+    lecture = await prisma.courseLecture.findFirstOrThrow({ where: { sectionId: section.id } });
+
+    await prisma.enrollment.create({
+      data: { studentId: enrolledStudent.id, courseId: course.id },
+    });
+  });
+
+  afterAll(async () => {
+    await prisma.enrollment.deleteMany({ where: { courseId: course.id } });
+    await prisma.courseLecture.deleteMany({ where: { section: { courseId: course.id } } });
+    await prisma.courseSection.deleteMany({ where: { courseId: course.id } });
+    await prisma.course.deleteMany({ where: { id: course.id } });
+    await prisma.user.deleteMany({ where: { id: { in: [instructor.id, student.id, enrolledStudent.id] } } });
+    await prisma.$disconnect();
+  });
+
+  it('strips paid video/attachment URLs from the public course page', async () => {
+    const res = await request(app).get(`/api/v1/courses/${slug}`);
+    expect(res.status).toBe(200);
+    const publicLecture = res.body.data.sections[0].lectures[0];
+    expect(publicLecture.videoUrl).toBeNull();
+    expect(publicLecture.attachments).toBe('[]');
+    expect(publicLecture.videoStorageKey).toBeTruthy();
+  });
+
+  it('denies non-enrolled students from signing a lecture video', async () => {
+    const res = await request(app)
+      .post('/api/v1/storage/sign-lecture')
+      .set('Authorization', `Bearer ${tokenFor(student.id)}`)
+      .send({ lectureId: lecture.id });
+    expect(res.status).toBe(403);
+  });
+
+  it('allows enrolled students to sign a lecture video', async () => {
+    const res = await request(app)
+      .post('/api/v1/storage/sign-lecture')
+      .set('Authorization', `Bearer ${tokenFor(enrolledStudent.id)}`)
+      .send({ lectureId: lecture.id });
+    expect(res.status).toBe(200);
+    expect(res.body.data.url).toBeTruthy();
+  });
+
+  it('allows the course instructor to sign a lecture video', async () => {
+    const res = await request(app)
+      .post('/api/v1/storage/sign-lecture')
+      .set('Authorization', `Bearer ${tokenFor(instructor.id)}`)
+      .send({ lectureId: lecture.id });
+    expect([200, 500]).toContain(res.status);
+  });
+
+  it('strips video URLs from the section lecture list for anonymous visitors', async () => {
+    const section = await prisma.courseSection.findFirstOrThrow({ where: { courseId: course.id } });
+    const res = await request(app).get(`/api/v1/sections/${section.id}/lectures`);
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].videoUrl).toBeNull();
+  });
+});

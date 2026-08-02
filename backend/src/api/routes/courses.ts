@@ -4,6 +4,7 @@ import { authenticate, AuthRequest } from '../middleware/auth';
 import { cache } from '../../services/cache';
 import { config } from '../../config';
 import { Prisma } from '@prisma/client';
+import { getRequestUser, canAccessCourse, sanitizeLectures } from '../../services/access';
 
 const router = Router();
 
@@ -195,6 +196,15 @@ router.get('/id/:id', async (req, res) => {
       },
     });
     if (!course) return res.status(404).json({ success: false, message: 'Course not found' });
+
+    const viewer = getRequestUser(req);
+    const hasAccess = await canAccessCourse(course.id, viewer.userId, viewer.role);
+    if (course.sections) {
+      for (const section of course.sections) {
+        if (section.lectures) section.lectures = sanitizeLectures(section.lectures, hasAccess);
+      }
+    }
+
     res.json({ success: true, data: course });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
@@ -278,6 +288,11 @@ router.get('/:id/progress', authenticate, async (req: AuthRequest, res) => {
     });
     if (!course) return res.status(404).json({ success: false, message: 'Course not found' });
 
+    const access = await canAccessCourse(course.id, req.userId, req.userRole);
+    if (!access) {
+      return res.status(403).json({ success: false, message: 'Enrollment required to view progress' });
+    }
+
     const lectureIds = course.sections.flatMap((s) => s.lectures.map((l) => l.id));
     const progress = await prisma.lectureProgress.findMany({
       where: { studentId: req.userId, lectureId: { in: lectureIds } },
@@ -308,8 +323,12 @@ router.get('/:slug', async (req, res) => {
       where: { slug: req.params.slug },
       include: {
         instructor: {
-          select: { id: true, fullName: true, avatarUrl: true },
-          include: { instructorProfile: { select: { headline: true, biography: true } } },
+          select: {
+            id: true,
+            fullName: true,
+            avatarUrl: true,
+            instructorProfile: { select: { headline: true, biography: true } },
+          },
         },
         category: true,
         sections: {
@@ -330,6 +349,14 @@ router.get('/:slug', async (req, res) => {
 
     if (!course || course.status !== 'APPROVED') {
       return res.status(404).json({ success: false, message: 'Course not found' });
+    }
+
+    const viewer = getRequestUser(req);
+    const hasAccess = await canAccessCourse(course.id, viewer.userId, viewer.role);
+    if (course.sections) {
+      for (const section of course.sections) {
+        if (section.lectures) section.lectures = sanitizeLectures(section.lectures, hasAccess);
+      }
     }
 
     res.json({ success: true, data: course });

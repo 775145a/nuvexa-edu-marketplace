@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { prisma } from '../../services/prisma';
 import { authenticate, AuthRequest } from '../middleware/auth';
+import { getRequestUser, canAccessCourse, sanitizeLectures } from '../../services/access';
 
 const router = Router();
 
@@ -14,6 +15,11 @@ router.get('/courses/:courseId/sections', async (req, res) => {
         exams: { where: { isPublished: true }, select: { id: true, title: true, titleAr: true, duration: true, passingScore: true } },
       },
     });
+    const viewer = getRequestUser(req);
+    const hasAccess = await canAccessCourse(req.params.courseId, viewer.userId, viewer.role);
+    for (const section of sections) {
+      section.lectures = sanitizeLectures(section.lectures, hasAccess);
+    }
     res.json({ success: true, data: sections });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
@@ -95,11 +101,19 @@ router.delete('/sections/:id', authenticate, async (req: AuthRequest, res) => {
 
 router.get('/sections/:sectionId/lectures', async (req, res) => {
   try {
+    const section = await prisma.courseSection.findUnique({
+      where: { id: req.params.sectionId },
+      select: { courseId: true },
+    });
+    if (!section) return res.status(404).json({ success: false, message: 'Section not found' });
+
     const lectures = await prisma.courseLecture.findMany({
       where: { sectionId: req.params.sectionId },
       orderBy: { order: 'asc' },
     });
-    res.json({ success: true, data: lectures });
+    const viewer = getRequestUser(req);
+    const hasAccess = await canAccessCourse(section.courseId, viewer.userId, viewer.role);
+    res.json({ success: true, data: sanitizeLectures(lectures, hasAccess) });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }

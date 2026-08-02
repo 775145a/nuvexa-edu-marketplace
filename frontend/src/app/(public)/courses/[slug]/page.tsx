@@ -420,7 +420,7 @@ export default function CourseDetailPage() {
                                 {lectures.map((lecture: any) => (
                                   <div key={lecture.id} className="flex items-center justify-between px-5 py-3.5 ps-12">
                                     <div className="flex min-w-0 items-center gap-3">
-                                      {lecture.videoUrl ? (
+                                      {lecture.videoStorageKey || lecture.videoUrl ? (
                                         <PlayCircle className="h-4 w-4 shrink-0 text-primary" />
                                       ) : lecture.isFree ? (
                                         <Lock className="h-4 w-4 shrink-0 text-emerald-500" />

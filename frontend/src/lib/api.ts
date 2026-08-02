@@ -125,6 +125,8 @@ export const storageApi = {
   },
   sign: (key: string, downloadName?: string) =>
     request('/storage/sign', { method: 'POST', body: JSON.stringify({ key, downloadName }) }),
+  signLecture: (lectureId: string) =>
+    request('/storage/sign-lecture', { method: 'POST', body: JSON.stringify({ lectureId }) }),
 };
 
 export const sectionApi = {
