@@ -381,6 +381,62 @@ router.get('/student/dashboard', async (req, res) => {
   }
 });
 
+router.get('/certificates', async (req, res) => {
+  try {
+    const header = req.headers.authorization;
+    if (!header?.startsWith('Bearer ')) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+    const jwt = await import('jsonwebtoken');
+    const decoded = jwt.default.verify(header.split(' ')[1], process.env.JWT_SECRET || '') as any;
+
+    const certificates = await prisma.certificate.findMany({
+      where: { studentId: decoded.userId },
+      include: {
+        student: { select: { fullName: true } },
+        course: {
+          select: {
+            id: true, title: true, titleAr: true, slug: true, level: true,
+            instructor: { select: { fullName: true } },
+          },
+        },
+      },
+      orderBy: { completionDate: 'desc' },
+    });
+    res.json({ success: true, data: certificates });
+  } catch {
+    res.status(401).json({ success: false, message: 'Invalid token' });
+  }
+});
+
+router.get('/certificates/verify/:number', async (req, res) => {
+  try {
+    const certificate = await prisma.certificate.findUnique({
+      where: { certificateNumber: req.params.number },
+      include: {
+        student: { select: { fullName: true } },
+        course: { select: { id: true, title: true, titleAr: true, instructor: { select: { fullName: true } } } },
+      },
+    });
+    if (!certificate) {
+      return res.json({ success: true, data: { valid: false } });
+    }
+    res.json({
+      success: true,
+      data: {
+        valid: true,
+        certificateNumber: certificate.certificateNumber,
+        studentName: certificate.student.fullName,
+        courseTitle: certificate.course.titleAr || certificate.course.title,
+        instructorName: certificate.course.instructor.fullName,
+        completionDate: certificate.completionDate,
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 router.get('/notifications', async (req, res) => {
   try {
     const header = req.headers.authorization;

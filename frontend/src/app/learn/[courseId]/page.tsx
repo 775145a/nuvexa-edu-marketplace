@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Hls from 'hls.js';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { courseApi, examApi, studentApi, qaApi } from '@/lib/api';
 
@@ -13,16 +12,29 @@ function LectureVideo({ src }: { src: string }) {
   useEffect(() => {
     const video = ref.current;
     if (!video) return;
-    let hls: Hls | null = null;
+    let hls: any = null;
+    let cancelled = false;
     const isHls = /\.m3u8(\?|#|$)/i.test(src);
-    if (isHls && Hls.isSupported()) {
-      hls = new Hls();
-      hls.loadSource(src);
-      hls.attachMedia(video);
+    if (isHls) {
+      import('hls.js')
+        .then(({ default: Hls }) => {
+          if (cancelled) return;
+          if (!Hls.isSupported()) {
+            video.src = src;
+            return;
+          }
+          hls = new Hls();
+          hls.loadSource(src);
+          hls.attachMedia(video);
+        })
+        .catch(() => {
+          if (!cancelled) video.src = src;
+        });
     } else {
       video.src = src;
     }
     return () => {
+      cancelled = true;
       if (hls) hls.destroy();
     };
   }, [src]);

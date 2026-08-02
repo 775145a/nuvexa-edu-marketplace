@@ -6,6 +6,8 @@ import { useI18n } from '@/lib/i18n/I18nProvider';
 import { useState, useEffect } from 'react';
 import { authApi } from '@/lib/api';
 import { Logo } from '@/components/shared/Logo';
+import { NotificationBell } from '@/components/shared/NotificationBell';
+import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { cn } from '@/lib/utils';
 import { GraduationCap } from 'lucide-react';
 
@@ -114,6 +116,12 @@ export function Navbar() {
           >
             {locale === 'ar' ? 'EN' : 'عربي'}
           </button>
+
+          <ThemeToggle />
+
+          {isLoggedIn && (
+            <NotificationBell className="hidden sm:block" />
+          )}
 
           {isLoggedIn && user ? (
             <div className="hidden sm:flex items-center gap-3">

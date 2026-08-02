@@ -193,6 +193,7 @@ export const studentApi = {
   enrolled: () => request('/enrolled'),
   checkEnrolled: (courseId: string) => request(`/enrolled/${courseId}`),
   dashboard: () => request('/student/dashboard'),
+  certificates: () => request('/certificates'),
 };
 
 export const notificationApi = {

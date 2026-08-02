@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { prisma } from '../../services/prisma';
 import { authenticate, AuthRequest } from '../middleware/auth';
+import { notifyUser } from '../../services/notification';
+import { enqueueMail } from '../../services/queue';
+import { logger } from '../../services/logger';
 
 const router = Router();
 
@@ -97,10 +100,63 @@ router.put('/lectures/:id/progress', authenticate, async (req: AuthRequest, res)
         where: { studentId: req.userId!, lectureId: { in: lectureIds.map((l) => l.id) }, completed: true },
       });
       const percent = lectureIds.length === 0 ? 0 : Math.round((completedCount / lectureIds.length) * 100);
+      const wasCompleted = !!enrollment.completedAt;
       await prisma.enrollment.update({
         where: { id: enrollment.id },
         data: { progress: percent, lastAccessedAt: new Date(), completedAt: percent === 100 ? new Date() : enrollment.completedAt },
       });
+
+      if (percent === 100 && !wasCompleted) {
+        const [course, student] = await Promise.all([
+          prisma.course.findUnique({
+            where: { id: lecture.section.courseId },
+            select: { id: true, title: true, titleAr: true, instructorId: true },
+          }),
+          prisma.user.findUnique({
+            where: { id: req.userId! },
+            select: { id: true, fullName: true, email: true },
+          }),
+        ]);
+
+        if (course) {
+          const certificateNumber = `NVX-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+          const certificate = await prisma.certificate.upsert({
+            where: { studentId_courseId: { studentId: req.userId!, courseId: course.id } },
+            update: {},
+            create: {
+              certificateNumber,
+              studentId: req.userId!,
+              courseId: course.id,
+              completionDate: new Date(),
+            },
+          });
+          const courseTitle = course.titleAr || course.title;
+          const studentName = student?.fullName || 'there';
+
+          await notifyUser(req.userId!, {
+            type: 'CERTIFICATE',
+            title: '🎓 استلمت شهادتك!',
+            message: `مبروك! أكملت كورس «${courseTitle}» وحصلت على شهادة إتمام.`,
+            link: '/certificates',
+          });
+
+          if (student?.email) {
+            await enqueueMail({
+              to: student.email,
+              subject: `شهادة إتمام من ${process.env.PLATFORM_NAME || 'Nuvexa'} - ${courseTitle}`,
+              html: `
+                <div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; max-width: 560px; margin: auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px;">
+                  <h2 style="color:#0f172a; margin:0 0 8px;">مبروك، ${studentName}! 🎓</h2>
+                  <p style="color:#475569; line-height:1.7;">أكملت بنجاح كورس <strong>«${courseTitle}»</strong>.</p>
+                  <p style="color:#475569; line-height:1.7;">رقم شهادتك: <code style="background:#f1f5f9; padding:2px 8px; border-radius:6px; direction:ltr; display:inline-block;">${certificate.certificateNumber}</code></p>
+                  <p style="color:#475569; line-height:1.7;">يمكنك تحميل الشهادة من لوحة الطالب.</p>
+                  <a href="${process.env.FRONTEND_URL || 'https://nuvexa-edu.vercel.app'}/certificates" style="display:inline-block; margin-top:12px; background:#4f46e5; color:#fff; padding:10px 20px; border-radius:8px; text-decoration:none;">عرض شهادتي</a>
+                </div>
+              `,
+            }).catch((err) => logger.warn(`[certificate] email failed: ${err instanceof Error ? err.message : err}`));
+          }
+        }
+      }
     }
 
     res.json({ success: true, data: progress });

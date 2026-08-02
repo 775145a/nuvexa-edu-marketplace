@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { prisma } from '../../services/prisma';
 import { authenticate, AuthRequest, authorize } from '../middleware/auth';
 import { notifyUser } from '../../services/notification';
+import { enqueueMail } from '../../services/queue';
+import { logger } from '../../services/logger';
 import { cache } from '../../services/cache';
 import { getMetricsSnapshot } from '../../services/metrics';
 import { completeOrderAndEnroll } from '../../services/payments/completeOrder';
@@ -132,7 +134,7 @@ router.put('/courses/:id/review', async (req: AuthRequest, res) => {
 
     const course = await prisma.course.findUnique({
       where: { id: req.params.id },
-      include: { instructor: { select: { fullName: true } } },
+      include: { instructor: { select: { fullName: true, email: true } } },
     });
     if (!course) return res.status(404).json({ success: false, message: 'Course not found' });
 
@@ -160,6 +162,7 @@ router.put('/courses/:id/review', async (req: AuthRequest, res) => {
     });
 
     const link = `/instructor/courses/${course.id}/manage`;
+    const frontendUrl = process.env.FRONTEND_URL || 'https://nuvexa-edu.vercel.app';
     if (action === 'APPROVED') {
       await notifyUser(course.instructorId, {
         type: 'COURSE_APPROVED',
@@ -167,6 +170,19 @@ router.put('/courses/:id/review', async (req: AuthRequest, res) => {
         message: `Congratulations! Your course "${course.title}" has been approved and published.`,
         link,
       });
+      if (course.instructor.email) {
+        await enqueueMail({
+          to: course.instructor.email,
+          subject: `تمت الموافقة على كورسك - ${process.env.PLATFORM_NAME || 'Nuvexa'}`,
+          html: `
+            <div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; max-width: 560px; margin: auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px;">
+              <h2 style="color:#0f172a; margin:0 0 8px;">أهلًا ${course.instructor.fullName}! 🎉</h2>
+              <p style="color:#475569; line-height:1.7;">تمت الموافقة على كورسك <strong>«${course.titleAr || course.title}»</strong> وتم نشره للطلاب.</p>
+              <a href="${frontendUrl}${link}" style="display:inline-block; margin-top:12px; background:#4f46e5; color:#fff; padding:10px 20px; border-radius:8px; text-decoration:none;">إدارة الكورس</a>
+            </div>
+          `,
+        }).catch((err) => logger.warn(`[course] approval email failed: ${err instanceof Error ? err.message : err}`));
+      }
     } else {
       await notifyUser(course.instructorId, {
         type: 'COURSE_REJECTED',
@@ -174,6 +190,21 @@ router.put('/courses/:id/review', async (req: AuthRequest, res) => {
         message: `Your course "${course.title}" was rejected: ${comments}`,
         link,
       });
+      if (course.instructor.email) {
+        await enqueueMail({
+          to: course.instructor.email,
+          subject: `ملاحظات على كورسك - ${process.env.PLATFORM_NAME || 'Nuvexa'}`,
+          html: `
+            <div dir="rtl" style="font-family: Tahoma, Arial, sans-serif; max-width: 560px; margin: auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px;">
+              <h2 style="color:#0f172a; margin:0 0 8px;">أهلًا ${course.instructor.fullName}،</h2>
+              <p style="color:#475569; line-height:1.7;">لم تتم الموافقة على كورسك <strong>«${course.titleAr || course.title}»</strong> للأسباب التالية:</p>
+              <p style="background:#fef2f2; border:1px solid #fecaca; color:#991b1b; padding:12px; border-radius:8px; line-height:1.7;">${comments}</p>
+              <p style="color:#475569; line-height:1.7;">يمكنك تعديل الكورس وإعادة إرساله للمراجعة.</p>
+              <a href="${frontendUrl}${link}" style="display:inline-block; margin-top:12px; background:#4f46e5; color:#fff; padding:10px 20px; border-radius:8px; text-decoration:none;">تعديل الكورس</a>
+            </div>
+          `,
+        }).catch((err) => logger.warn(`[course] rejection email failed: ${err instanceof Error ? err.message : err}`));
+      }
     }
 
     res.json({
