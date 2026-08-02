@@ -50,8 +50,6 @@ function VerifyOtpForm() {
     try {
       const res = await authApi.verifyOtp({ userId, otp: code, type });
       localStorage.setItem('accessToken', res.data.accessToken);
-      localStorage.setItem('refreshToken', res.data.refreshToken);
-      localStorage.setItem('sessionToken', res.data.sessionToken);
       localStorage.removeItem('pendingVerification');
       const role = res.data.role;
       if (role === 'ADMIN') router.push('/admin/dashboard');

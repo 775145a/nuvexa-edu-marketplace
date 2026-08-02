@@ -14,9 +14,9 @@ function getTransporter(): nodemailer.Transporter {
         user: config.smtp.user,
         pass: config.smtp.pass,
       },
-      tls: {
-        rejectUnauthorized: false,
-      },
+      ...(process.env.SMTP_REJECT_UNAUTHORIZED === 'false'
+        ? { tls: { rejectUnauthorized: false } }
+        : {}),
     });
   }
   return transporter;

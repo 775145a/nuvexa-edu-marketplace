@@ -4,7 +4,11 @@ import app from '../src/app';
 import { prisma } from '../src/services/prisma';
 
 function tokenFor(userId: string, role = 'STUDENT'): string {
-  return jwt.sign({ userId, role }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+  return jwt.sign({ userId, role }, process.env.JWT_SECRET!, {
+    expiresIn: '1h',
+    issuer: 'nuvexa',
+    audience: 'nuvexa-web',
+  });
 }
 
 describe('Certificates', () => {

@@ -10,8 +10,20 @@ export const config = {
   jwt: {
     secret: process.env.JWT_SECRET || 'fallback-secret',
     refreshSecret: process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret',
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    expiresIn: process.env.JWT_EXPIRES_IN || '15m',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d',
+    issuer: process.env.JWT_ISSUER || 'nuvexa',
+    audience: process.env.JWT_AUDIENCE || 'nuvexa-web',
+    algorithm: 'HS256',
+  },
+  auth: {
+    cookieRefresh: process.env.AUTH_COOKIE_REFRESH || 'nvx_refresh',
+    cookieSession: process.env.AUTH_COOKIE_SESSION || 'nvx_session',
+    cookieSecure: process.env.AUTH_COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
+    cookieSameSite: (process.env.AUTH_COOKIE_SAME_SITE || 'none') as 'none' | 'lax' | 'strict',
+    sessionDays: parseInt(process.env.SESSION_DAYS || '30'),
+    maxFailedAttempts: parseInt(process.env.LOGIN_MAX_FAILED || '5'),
+    lockoutMinutes: parseInt(process.env.LOGIN_LOCKOUT_MINUTES || '15'),
   },
   smtp: {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',

@@ -37,6 +37,7 @@ export function Navbar() {
   }, [pathname]);
 
   const handleLogout = () => {
+    authApi.logout({}).catch(() => {});
     localStorage.removeItem('accessToken');
     localStorage.removeItem('sessionToken');
     localStorage.removeItem('refreshToken');

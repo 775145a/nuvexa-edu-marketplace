@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import { config } from './config';
 import routes from './api/routes';
 import { requestLogger, notFound, errorHandler } from './api/middleware/http';
@@ -18,6 +19,7 @@ app.use(helmet({
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 }));
 app.use(cors({ origin: config.corsOrigins, credentials: true }));
+app.use(cookieParser());
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));

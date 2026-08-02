@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import jwt from 'jsonwebtoken';
 import { prisma } from '../../services/prisma';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { config } from '../../config';
-import { JwtPayload } from '../../services/auth';
+import { verifyAccessToken, JwtPayload } from '../../services/auth';
 
 const router = Router();
 
@@ -226,7 +225,7 @@ router.get('/exams/:examId', async (req, res) => {
     const header = req.headers.authorization;
     if (header && header.startsWith('Bearer ')) {
       try {
-        const decoded = jwt.verify(header.split(' ')[1], config.jwt.secret) as JwtPayload;
+        const decoded = verifyAccessToken(header.split(' ')[1]);
         userId = decoded.userId;
         userRole = decoded.role;
       } catch {

@@ -16,7 +16,11 @@ describe('Realtime notifications', () => {
     await new Promise<void>((res) => server.listen(0, res));
     const port = (server.address() as AddressInfo).port;
     url = `http://localhost:${port}`;
-    token = jwt.sign({ userId: 'u1', role: 'STUDENT' }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+    token = jwt.sign({ userId: 'u1', role: 'STUDENT' }, process.env.JWT_SECRET!, {
+      expiresIn: '1h',
+      issuer: 'nuvexa',
+      audience: 'nuvexa-web',
+    });
     client = Client(url, { auth: { token }, transports: ['websocket'], timeout: 5000 });
     await new Promise<void>((res, rej) => {
       client.on('connect', () => res());

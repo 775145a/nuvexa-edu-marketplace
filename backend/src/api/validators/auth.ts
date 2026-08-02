@@ -25,5 +25,5 @@ export const resendOtpSchema = z.object({
 });
 
 export const refreshSchema = z.object({
-  refreshToken: z.string().min(1),
+  refreshToken: z.string().min(1).optional(),
 });

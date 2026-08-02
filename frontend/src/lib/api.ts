@@ -1,19 +1,61 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
-async function request<T = any>(path: string, options: RequestInit = {}): Promise<{ success: boolean; data: T; message?: string }> {
+const CLIENT_HEADER = 'X-Nuvexa-Client';
+const CLIENT_VALUE = '1';
+
+let refreshPromise: Promise<boolean> | null = null;
+
+async function refreshSession(): Promise<boolean> {
+  if (refreshPromise) return refreshPromise;
+  refreshPromise = (async () => {
+    try {
+      const res = await fetch(`${API_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', [CLIENT_HEADER]: CLIENT_VALUE },
+        credentials: 'include',
+      });
+      const json = await res.json();
+      if (!res.ok || !json?.data?.accessToken) return false;
+      localStorage.setItem('accessToken', json.data.accessToken);
+      return true;
+    } catch {
+      return false;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+  return refreshPromise;
+}
+
+function clearSession() {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('sessionToken');
+  localStorage.removeItem('refreshToken');
+}
+
+async function request<T = any>(path: string, options: RequestInit = {}, retried = false): Promise<{ success: boolean; data: T; message?: string }> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    [CLIENT_HEADER]: CLIENT_VALUE,
     ...(options.headers as Record<string, string>),
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+  const res = await fetch(`${API_URL}${path}`, { ...options, headers, credentials: 'include' });
 
-  if (res.status === 401 && token) {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('sessionToken');
+  if (res.status === 401 && token && !path.startsWith('/auth/refresh') && !retried) {
+    const ok = await refreshSession();
+    if (ok) {
+      const fresh = localStorage.getItem('accessToken');
+      if (fresh) headers['Authorization'] = `Bearer ${fresh}`;
+      const retry = await fetch(`${API_URL}${path}`, { ...options, headers, credentials: 'include' });
+      const retryJson = await retry.json();
+      if (!retry.ok) throw new Error(retryJson.message || 'Request failed');
+      return retryJson;
+    }
+    clearSession();
     if (typeof window !== 'undefined') window.location.href = '/login';
   }
 

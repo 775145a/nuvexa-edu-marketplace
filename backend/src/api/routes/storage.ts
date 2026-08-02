@@ -4,7 +4,7 @@ import path from 'path';
 import crypto from 'crypto';
 import multer from 'multer';
 import { config } from '../../config';
-import { authenticate } from '../middleware/auth';
+import { authenticate, authorize } from '../middleware/auth';
 import { uploadLimiter } from '../middleware/rateLimit';
 import { getStorage, isLocalStorage, LocalStorageProvider } from '../../services/storage';
 import { logger } from '../../services/logger';
@@ -219,10 +219,13 @@ router.post('/storage/upload', uploadLimiter, authenticate, (req: any, res) => {
   });
 });
 
-router.post('/storage/sign', uploadLimiter, authenticate, async (req: any, res) => {
+router.post('/storage/sign', uploadLimiter, authenticate, authorize('ADMIN', 'INSTRUCTOR'), async (req: any, res) => {
   try {
     const { key, downloadName } = req.body;
     if (!key) return res.status(400).json({ success: false, message: 'Key is required' });
+    if (!/^[A-Za-z0-9][A-Za-z0-9/_.-]{0,511}$/.test(key)) {
+      return res.status(400).json({ success: false, message: 'Invalid key' });
+    }
     const storage = getStorage();
     const url = await storage.getSignedUrl(key, {
       expirySeconds: config.storage.signedUrlTtl,

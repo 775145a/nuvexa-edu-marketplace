@@ -120,6 +120,7 @@ export function DashboardShell({
     try { await authApi.logout({}); } catch { /* ignore */ }
     localStorage.removeItem('accessToken');
     localStorage.removeItem('sessionToken');
+    localStorage.removeItem('refreshToken');
     router.push('/login');
   };
 

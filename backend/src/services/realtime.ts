@@ -1,6 +1,6 @@
 import { Server as SocketIOServer } from 'socket.io';
-import jwt from 'jsonwebtoken';
 import { config } from '../config';
+import { verifyAccessToken } from './auth';
 import { logger } from './logger';
 
 let io: SocketIOServer | null = null;
@@ -31,7 +31,7 @@ export async function initRealtime(httpServer: import('http').Server): Promise<S
     const token = auth?.token || query?.token;
     if (!token) return next(new Error('unauthorized'));
     try {
-      const decoded = jwt.verify(String(token), config.jwt.secret) as { userId: string };
+      const decoded = verifyAccessToken(String(token));
       socket.data.userId = decoded.userId;
       next();
     } catch {

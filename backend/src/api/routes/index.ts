@@ -14,6 +14,7 @@ import videoJobRoutes from './videoJobs';
 import couponRoutes from './coupons';
 import lectureCommentRoutes from './lectureComments';
 import { prisma } from '../../services/prisma';
+import { verifyAccessToken } from '../../services/auth';
 import { attachLectureStats } from './courses';
 
 const router = Router();
@@ -169,8 +170,7 @@ router.get('/enrolled', async (req, res) => {
     if (!header?.startsWith('Bearer ')) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
-    const jwt = await import('jsonwebtoken');
-    const decoded = jwt.default.verify(header.split(' ')[1], process.env.JWT_SECRET || '') as any;
+    const decoded = verifyAccessToken(header.split(' ')[1]) as any;
 
     const enrollments = await prisma.enrollment.findMany({
       where: { studentId: decoded.userId },
@@ -198,8 +198,7 @@ router.get('/enrolled/:courseId', async (req, res) => {
     if (!header?.startsWith('Bearer ')) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
-    const jwt = await import('jsonwebtoken');
-    const decoded = jwt.default.verify(header.split(' ')[1], process.env.JWT_SECRET || '') as any;
+    const decoded = verifyAccessToken(header.split(' ')[1]) as any;
 
     const enrollment = await prisma.enrollment.findUnique({
       where: {
@@ -219,8 +218,7 @@ router.get('/instructor/dashboard', async (req, res) => {
     if (!header?.startsWith('Bearer ')) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
-    const jwt = await import('jsonwebtoken');
-    const decoded = jwt.default.verify(header.split(' ')[1], process.env.JWT_SECRET || '') as any;
+    const decoded = verifyAccessToken(header.split(' ')[1]) as any;
 
     const instructorId = decoded.userId;
 
@@ -307,8 +305,7 @@ router.get('/student/dashboard', async (req, res) => {
     if (!header?.startsWith('Bearer ')) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
-    const jwt = await import('jsonwebtoken');
-    const decoded = jwt.default.verify(header.split(' ')[1], process.env.JWT_SECRET || '') as any;
+    const decoded = verifyAccessToken(header.split(' ')[1]) as any;
     const studentId = decoded.userId;
 
     const [enrollments, certificates, notifications, unreadCount, examResults, assignments] = await Promise.all([
@@ -387,8 +384,7 @@ router.get('/certificates', async (req, res) => {
     if (!header?.startsWith('Bearer ')) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
-    const jwt = await import('jsonwebtoken');
-    const decoded = jwt.default.verify(header.split(' ')[1], process.env.JWT_SECRET || '') as any;
+    const decoded = verifyAccessToken(header.split(' ')[1]) as any;
 
     const certificates = await prisma.certificate.findMany({
       where: { studentId: decoded.userId },
@@ -443,8 +439,7 @@ router.get('/notifications', async (req, res) => {
     if (!header?.startsWith('Bearer ')) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
-    const jwt = await import('jsonwebtoken');
-    const decoded = jwt.default.verify(header.split(' ')[1], process.env.JWT_SECRET || '') as any;
+    const decoded = verifyAccessToken(header.split(' ')[1]) as any;
 
     const notifications = await prisma.notification.findMany({
       where: { userId: decoded.userId },
@@ -463,8 +458,7 @@ router.put('/notifications/read-all', async (req, res) => {
     if (!header?.startsWith('Bearer ')) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
-    const jwt = await import('jsonwebtoken');
-    const decoded = jwt.default.verify(header.split(' ')[1], process.env.JWT_SECRET || '') as any;
+    const decoded = verifyAccessToken(header.split(' ')[1]) as any;
 
     await prisma.notification.updateMany({
       where: { userId: decoded.userId, isRead: false },
