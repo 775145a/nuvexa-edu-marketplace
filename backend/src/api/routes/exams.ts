@@ -1,6 +1,9 @@
 import { Router } from 'express';
+import jwt from 'jsonwebtoken';
 import { prisma } from '../../services/prisma';
 import { authenticate, AuthRequest } from '../middleware/auth';
+import { config } from '../../config';
+import { JwtPayload } from '../../services/auth';
 
 const router = Router();
 
@@ -209,6 +212,7 @@ router.get('/exams/:examId', async (req, res) => {
     const exam = await prisma.exam.findUnique({
       where: { id: req.params.examId },
       include: {
+        course: { select: { id: true, instructorId: true, title: true } },
         questions: {
           orderBy: { order: 'asc' },
           include: { options: { orderBy: { order: 'asc' } } },
@@ -217,7 +221,52 @@ router.get('/exams/:examId', async (req, res) => {
     });
     if (!exam) return res.status(404).json({ success: false, message: 'Exam not found' });
 
-    res.json({ success: true, data: exam });
+    let userId: string | undefined;
+    let userRole: string | undefined;
+    const header = req.headers.authorization;
+    if (header && header.startsWith('Bearer ')) {
+      try {
+        const decoded = jwt.verify(header.split(' ')[1], config.jwt.secret) as JwtPayload;
+        userId = decoded.userId;
+        userRole = decoded.role;
+      } catch {
+        // treat invalid token as anonymous
+      }
+    }
+
+    const isOwner = exam.course.instructorId === userId || userRole === 'ADMIN';
+
+    if (isOwner) {
+      return res.json({ success: true, data: exam });
+    }
+
+    const { questions, course, ...examMeta } = exam;
+
+    if (!userId) {
+      return res.json({ success: true, data: { ...examMeta, questions: [] } });
+    }
+
+    const enrollment = await prisma.enrollment.findUnique({
+      where: { studentId_courseId: { studentId: userId, courseId: course.id } },
+    });
+    if (!enrollment) {
+      return res.status(403).json({ success: false, message: 'You must be enrolled in this course' });
+    }
+
+    const safeQuestions = questions.map((q: any) => ({
+      id: q.id,
+      text: q.text,
+      textAr: q.textAr,
+      type: q.type,
+      score: q.score,
+      order: q.order,
+      options: q.options.map((opt: any) => {
+        const { isCorrect: _isCorrect, ...rest } = opt;
+        return rest;
+      }),
+    }));
+
+    res.json({ success: true, data: { ...examMeta, questions: safeQuestions } });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useI18n } from '@/lib/i18n/I18nProvider';
-import { Star, Users, ArrowUpRight, PlayCircle } from 'lucide-react';
+import { Star, Users, ArrowUpRight, PlayCircle, BookOpen, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type Course = Record<string, any>;
@@ -10,6 +10,16 @@ type Course = Record<string, any>;
 function formatPrice(value: number | null | undefined): string {
   const v = value ?? 0;
   return `${v.toLocaleString()} EGP`;
+}
+
+function formatDuration(minutes: number | null | undefined, hoursLabel: string, minutesLabel: string): string {
+  const m = Math.round(minutes ?? 0);
+  if (m <= 0) return '';
+  const h = Math.floor(m / 60);
+  const rem = m % 60;
+  if (h > 0 && rem > 0) return `${h} ${hoursLabel} ${rem} ${minutesLabel}`;
+  if (h > 0) return `${h} ${hoursLabel}`;
+  return `${rem} ${minutesLabel}`;
 }
 
 export function CourseCard({ course, className }: { course: Course; className?: string }) {
@@ -65,6 +75,23 @@ export function CourseCard({ course, className }: { course: Course; className?: 
           </span>
           {course.instructor?.fullName}
         </p>
+
+        {(course.totalLectures > 0 || course.totalDuration > 0) && (
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            {course.totalLectures > 0 && (
+              <span className="flex items-center gap-1">
+                <BookOpen className="h-3.5 w-3.5" />
+                {course.totalLectures} {t.courses.lectures}
+              </span>
+            )}
+            {course.totalDuration > 0 && (
+              <span className="flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" />
+                {formatDuration(course.totalDuration, t.courses.hours, t.courses.minutes || t.courses.hours)}
+              </span>
+            )}
+          </div>
+        )}
 
         <div className="mt-3 flex items-center gap-2">
           <span className="flex items-center gap-1 text-sm font-semibold text-amber-500">

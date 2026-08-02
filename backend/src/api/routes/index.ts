@@ -14,6 +14,7 @@ import videoJobRoutes from './videoJobs';
 import couponRoutes from './coupons';
 import lectureCommentRoutes from './lectureComments';
 import { prisma } from '../../services/prisma';
+import { attachLectureStats } from './courses';
 
 const router = Router();
 
@@ -79,6 +80,12 @@ router.get('/stats', async (_req, res) => {
       }),
     ]);
 
+    const [latestWithStats, topSellingWithStats, topRatedWithStats] = await Promise.all([
+      attachLectureStats(latest),
+      attachLectureStats(topSelling),
+      attachLectureStats(topRated),
+    ]);
+
     res.json({
       success: true,
       data: {
@@ -91,9 +98,9 @@ router.get('/stats', async (_req, res) => {
           sales: completedOrders,
           reviews,
         },
-        latest,
-        topSelling,
-        topRated,
+        latest: latestWithStats,
+        topSelling: topSellingWithStats,
+        topRated: topRatedWithStats,
       },
     });
   } catch (err: any) {

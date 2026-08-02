@@ -35,6 +35,50 @@ function canEditCourse(course: { instructorId: string; status: string }, userId?
 
 const isPostgres = config.db.provider === 'postgres';
 
+export async function attachLectureStats(courses: any[]): Promise<any[]> {
+  if (courses.length === 0) return courses;
+  const ids = courses.map((c) => c.id);
+  let stats: Record<string, { totalLectures: number; totalDuration: number }> = {};
+
+  if (isPostgres) {
+    try {
+      const rows = await prisma.$queryRaw<
+        { courseId: string; totalLectures: number; totalDuration: number }[]
+      >(Prisma.sql`
+        SELECT s."courseId" AS "courseId",
+               COUNT(l.id)::int AS "totalLectures",
+               COALESCE(SUM(COALESCE(l.duration, 0)), 0) AS "totalDuration"
+        FROM course_sections s
+        LEFT JOIN course_lectures l ON l."sectionId" = s.id
+        WHERE s."courseId" IN (${Prisma.join(ids)})
+        GROUP BY s."courseId"
+      `);
+      for (const r of rows) stats[r.courseId] = { totalLectures: r.totalLectures, totalDuration: r.totalDuration };
+    } catch (err) {
+      console.warn('lecture stats aggregation failed', (err as Error).message);
+    }
+  }
+
+  if (Object.keys(stats).length === 0) {
+    const sections = await prisma.courseSection.findMany({
+      where: { courseId: { in: ids } },
+      select: { courseId: true, lectures: { select: { duration: true } } },
+    });
+    for (const s of sections) {
+      const cur = stats[s.courseId] || { totalLectures: 0, totalDuration: 0 };
+      cur.totalLectures += s.lectures.length;
+      cur.totalDuration += s.lectures.reduce((sum, l) => sum + (l.duration || 0), 0);
+      stats[s.courseId] = cur;
+    }
+  }
+
+  return courses.map((c) => ({
+    ...c,
+    totalLectures: stats[c.id]?.totalLectures ?? c.totalLectures ?? 0,
+    totalDuration: stats[c.id]?.totalDuration ?? 0,
+  }));
+}
+
 async function buildSearchWhere(search: string, baseWhere: any): Promise<any> {
   const where: any = { ...baseWhere };
   if (!search) return where;
@@ -101,7 +145,7 @@ router.get('/', async (req, res) => {
     const cached = await cache.get(cacheKey);
     if (cached) return res.json(cached);
 
-    const [courses, total] = await Promise.all([
+    const [coursesRaw, total] = await Promise.all([
       prisma.course.findMany({
         where: finalWhere,
         orderBy,
@@ -115,6 +159,8 @@ router.get('/', async (req, res) => {
       }),
       prisma.course.count({ where: finalWhere }),
     ]);
+
+    const courses = await attachLectureStats(coursesRaw);
 
     const result = {
       success: true,

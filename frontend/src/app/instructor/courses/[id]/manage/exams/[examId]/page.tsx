@@ -31,6 +31,9 @@ export default function EditExamPage() {
   const [qScore, setQScore] = useState('1');
   const [addingQ, setAddingQ] = useState(false);
 
+  const [results, setResults] = useState<any[]>([]);
+  const [resultsLoading, setResultsLoading] = useState(false);
+
   useEffect(() => {
     if (!examId) return;
     examApi.get(examId).then(r => {
@@ -43,6 +46,19 @@ export default function EditExamPage() {
       setIsPublished(d.isPublished ?? true);
       setQuestions(d.questions || []);
     }).catch(() => {}).finally(() => setLoading(false));
+  }, [examId]);
+
+  const loadResults = async () => {
+    setResultsLoading(true);
+    try {
+      const r = await examApi.results(examId);
+      setResults(r.data || []);
+    } catch {}
+    setResultsLoading(false);
+  };
+
+  useEffect(() => {
+    if (examId) loadResults();
   }, [examId]);
 
   const handleUpdateExam = async () => {
@@ -90,6 +106,19 @@ export default function EditExamPage() {
     const newOpts = [...qOptions];
     newOpts[i] = v;
     setQOptions(newOpts);
+  };
+
+  const passRate = results.length > 0 ? Math.round((results.filter(r => r.passed).length / results.length) * 100) : 0;
+  const avgScore = results.length > 0
+    ? Math.round(results.reduce((sum, r) => sum + (r.percentage || 0), 0) / results.length)
+    : 0;
+
+  const formatDate = (d: string) => {
+    try {
+      return new Date(d).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch {
+      return d;
+    }
   };
 
   if (loading) return <div className="p-8"><div className="h-8 skeleton w-64 mb-6" /><div className="space-y-4">{[...Array(3)].map((_, i) => <div key={i} className="h-20 skeleton rounded-xl" />)}</div></div>;
@@ -204,6 +233,57 @@ export default function EditExamPage() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Student results */}
+      <div className="rounded-xl border border-border bg-card p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold">Student Results ({results.length})</h2>
+          <button onClick={loadResults} disabled={resultsLoading}
+            className="px-3 py-1.5 rounded-lg border border-border text-sm font-medium hover:bg-accent disabled:opacity-50">
+            {resultsLoading ? t.common.loading : t.common.refresh}
+          </button>
+        </div>
+
+        {results.length > 0 && (
+          <div className="mb-5 grid grid-cols-2 gap-3">
+            <div className="rounded-xl bg-gradient-primary-soft p-4 text-center">
+              <p className="text-2xl font-display font-extrabold text-primary">{passRate}%</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Pass rate</p>
+            </div>
+            <div className="rounded-xl bg-gradient-primary-soft p-4 text-center">
+              <p className="text-2xl font-display font-extrabold text-primary">{avgScore}%</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Average score</p>
+            </div>
+          </div>
+        )}
+
+        {results.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-6">No attempts yet. Results will appear here when students take this exam.</p>
+        ) : (
+          <div className="space-y-2">
+            {results.map(r => (
+              <div key={r.id} className="flex items-center gap-3 rounded-xl border border-border p-3">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-primary text-sm font-bold text-white">
+                  {r.student?.fullName?.charAt(0) || '?'}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">{r.student?.fullName}</p>
+                  <p className="truncate text-xs text-muted-foreground" dir="ltr">{r.student?.email}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Attempt #{r.attemptNumber} · {formatDate(r.completedAt || r.createdAt)}
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="font-display text-base font-extrabold">{r.percentage}%</p>
+                  <span className={`inline-block mt-0.5 rounded-full px-2 py-0.5 text-[10px] font-bold ${r.passed ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'}`}>
+                    {r.passed ? 'Passed' : 'Failed'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
