@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { authApi } from '@/lib/api';
+import { AuthShell } from '@/components/shared/AuthShell';
 
 export default function RegisterPage() {
   const { t } = useI18n();
@@ -53,22 +54,12 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 font-display font-bold text-2xl text-white mb-2">
-            <span className="gradient-primary text-white px-2 py-1 rounded-lg">N</span>
-            Nuvexa
-          </Link>
-          <h1 className="text-2xl font-bold text-white">{t.auth.createAccount}</h1>
+    <AuthShell title={t.auth.createAccount} subtitle={t.auth.registerSubtitle}>
+      {error && (
+        <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm">
+          {error}
         </div>
-
-        <div className="bg-white dark:bg-navy-800 rounded-2xl shadow-2xl p-8">
-          {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm">
-              {error}
-            </div>
-          )}
+      )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
@@ -171,8 +162,6 @@ export default function RegisterPage() {
               <Link href="/login" className="text-primary hover:underline font-medium">{t.auth.login}</Link>
             </p>
           </div>
-        </div>
-      </div>
-    </div>
+    </AuthShell>
   );
 }

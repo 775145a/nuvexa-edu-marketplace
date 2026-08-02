@@ -2,9 +2,9 @@
 
 import { Suspense, useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { authApi } from '@/lib/api';
+import { AuthShell } from '@/components/shared/AuthShell';
 
 function VerifyOtpForm() {
   const { t } = useI18n();
@@ -86,70 +86,66 @@ function VerifyOtpForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900">
-      <div className="w-full max-w-md">
-        <div className="bg-white dark:bg-navy-800 rounded-2xl shadow-2xl p-8 text-center">
-          <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-            </svg>
+    <AuthShell title={t.auth.verifyEmail} subtitle={t.auth.otpSent}>
+      <div className="text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl gradient-primary shadow-lg">
+          <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+          </svg>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 text-red-600 dark:text-red-400 text-sm">{error}</div>
+        )}
+
+        {success && (
+          <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 text-green-600 dark:text-green-400 text-sm">{success}</div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="flex justify-center gap-2 mb-6" dir="ltr">
+            {otp.map((digit, i) => (
+              <input
+                key={i}
+                ref={el => { inputRefs.current[i] = el; }}
+                type="text"
+                inputMode="numeric"
+                maxLength={1}
+                value={digit}
+                onChange={e => handleChange(i, e.target.value)}
+                onKeyDown={e => handleKeyDown(i, e)}
+                className="w-12 h-14 text-center text-xl font-bold rounded-xl border-2 border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-150"
+              />
+            ))}
           </div>
-          <h1 className="text-xl font-bold mb-2">{t.auth.verifyEmail}</h1>
-          <p className="text-sm text-muted-foreground mb-6">{t.auth.otpSent}</p>
 
-          {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 text-red-600 dark:text-red-400 text-sm">{error}</div>
-          )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-gradient w-full py-3 rounded-xl text-white font-semibold mb-4"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                {t.common.loading}
+              </span>
+            ) : t.auth.verify}
+          </button>
+        </form>
 
-          {success && (
-            <div className="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 text-green-600 dark:text-green-400 text-sm">{success}</div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <div className="flex justify-center gap-2 mb-6" dir="ltr">
-              {otp.map((digit, i) => (
-                <input
-                  key={i}
-                  ref={el => { inputRefs.current[i] = el; }}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={e => handleChange(i, e.target.value)}
-                  onKeyDown={e => handleKeyDown(i, e)}
-                  className="w-12 h-14 text-center text-xl font-bold rounded-xl border-2 border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                />
-              ))}
-            </div>
-
+        <div className="text-sm text-muted-foreground">
+          <p>{t.auth.didNotReceive}{' '}
             <button
-              type="submit"
-              disabled={loading}
-              className="btn-gradient w-full py-3 rounded-xl text-white font-semibold mb-4"
+              onClick={handleResend}
+              disabled={resending}
+              className="text-primary hover:underline font-medium disabled:opacity-50"
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-                  {t.common.loading}
-                </span>
-              ) : t.auth.verify}
+              {resending ? t.common.loading : t.auth.resendOtp}
             </button>
-          </form>
-
-          <div className="text-sm text-muted-foreground">
-            <p>{t.auth.didNotReceive}{' '}
-              <button
-                onClick={handleResend}
-                disabled={resending}
-                className="text-primary hover:underline font-medium disabled:opacity-50"
-              >
-                {resending ? t.common.loading : t.auth.resendOtp}
-              </button>
-            </p>
-          </div>
+          </p>
         </div>
       </div>
-    </div>
+    </AuthShell>
   );
 }
 

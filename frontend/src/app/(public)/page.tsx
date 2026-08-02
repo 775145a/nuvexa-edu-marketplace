@@ -6,9 +6,10 @@ import { useI18n } from '@/lib/i18n/I18nProvider';
 import { statsApi, categoryApi, authApi, WHATSAPP_LINK } from '@/lib/api';
 import { CourseCard } from '@/components/shared/CourseCard';
 import { WhatsAppButton } from '@/components/shared/WhatsAppButton';
+import { LogoMark } from '@/components/shared/Logo';
 import {
   PlayCircle, BookOpen, GraduationCap, Users, ShoppingBag,
-  Mail, ArrowUpRight, Sparkles, Headset, CheckCircle2,
+  Mail, ArrowUpRight, Headset, CheckCircle2,
 } from 'lucide-react';
 
 type Course = Record<string, any>;
@@ -66,7 +67,7 @@ export default function HomePage() {
 
         <div className="container relative py-16 md:py-28 text-center">
           <div className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-1.5 text-sm font-medium text-white/90 backdrop-blur">
-            <Sparkles className="h-4 w-4 text-cyan-300" />
+            <LogoMark size={20} />
             {t.home.heroBadge}
           </div>
 

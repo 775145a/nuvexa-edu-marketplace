@@ -10,13 +10,14 @@ import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, BookOpen, GraduationCap, FileText, FolderTree, Settings,
   PlusCircle, Wallet, Heart, BadgeCheck, Bell, LogOut, Menu, X, ChevronDown,
-  Sparkles, CheckCheck, Shield, Compass, Award,
+  CheckCheck, Shield, Compass, Award,
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/Avatar';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Primitives';
+import { LogoMark } from '@/components/shared/Logo';
 
 type Role = 'ADMIN' | 'INSTRUCTOR' | 'STUDENT';
 
@@ -128,11 +129,11 @@ export function DashboardShell({
   const SidebarContent = (
     <div className="flex h-full flex-col">
       <Link href="/" className="flex items-center gap-2.5 px-5 py-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-secondary to-accent text-white shadow-glow">
-          <Sparkles className="h-4.5 w-4.5" />
-        </div>
+        <LogoMark size={36} />
         <div>
-          <div className="font-display text-lg font-extrabold leading-none tracking-tight">Nuvexa</div>
+          <div className="font-display text-lg font-extrabold leading-none tracking-tight">
+            Nuve<span className="logo-gradient-text">xa</span>
+          </div>
           <div className="mt-0.5 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">{roleLabel} Panel</div>
         </div>
       </Link>
