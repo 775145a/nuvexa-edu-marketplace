@@ -442,11 +442,38 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
       return res.status(409).json({ success: false, message: 'Course is under review and cannot be edited. Wait for the review result.' });
     }
 
-    const body: any = { ...req.body };
+    const EDITABLE_FIELDS = [
+      'title', 'titleAr', 'description', 'descriptionAr', 'shortDescription', 'shortDescriptionAr',
+      'price', 'discountedPrice', 'level', 'language', 'thumbnailUrl', 'promoVideoUrl',
+      'requirements', 'requirementsAr', 'objectives', 'objectivesAr',
+      'targetAudience', 'targetAudienceAr', 'tags', 'tagsAr',
+      'customFieldAr', 'customFieldEn', 'allowCertificate', 'categoryId',
+    ];
+
+    const body: any = {};
+    for (const key of EDITABLE_FIELDS) {
+      if (req.body[key] !== undefined) body[key] = req.body[key];
+    }
+
+    if (body.price !== undefined) {
+      const price = parseFloat(body.price);
+      if (isNaN(price) || price < 0 || price > 1_000_000) {
+        return res.status(400).json({ success: false, message: 'Price must be a number between 0 and 1,000,000' });
+      }
+      body.price = price;
+    }
+    if (body.discountedPrice !== undefined && body.discountedPrice !== null) {
+      const discounted = parseFloat(body.discountedPrice);
+      if (isNaN(discounted) || discounted < 0 || discounted > (body.price ?? course.price)) {
+        return res.status(400).json({ success: false, message: 'Discounted price must be a valid number below the base price' });
+      }
+      body.discountedPrice = discounted;
+    }
+
     if (body.categoryId) body.categoryId = await resolveCategoryId(body.categoryId);
     if (body.customFieldAr === '') body.customFieldAr = null;
     if (body.customFieldEn === '') body.customFieldEn = null;
-    const { categoryId } = body;
+    const categoryId = body.categoryId;
     if (categoryId) {
       const category = await prisma.category.findUnique({ where: { id: categoryId } });
       if (category?.slug !== OTHER_CATEGORY_SLUG) {
@@ -457,13 +484,7 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
 
     const updated = await prisma.course.update({
       where: { id: req.params.id },
-      data: {
-        ...body,
-        price: body.price !== undefined ? parseFloat(body.price) : undefined,
-        discountedPrice: body.discountedPrice !== undefined && body.discountedPrice !== null
-          ? parseFloat(body.discountedPrice)
-          : undefined,
-      },
+      data: { ...body },
     });
 
     res.json({ success: true, data: updated });

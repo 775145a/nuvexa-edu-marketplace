@@ -12,7 +12,11 @@ const app = express();
 
 app.set('trust proxy', config.trustProxy ? 1 : false);
 
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+}));
 app.use(cors({ origin: config.corsOrigins, credentials: true }));
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));

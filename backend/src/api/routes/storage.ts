@@ -12,7 +12,7 @@ import { logger } from '../../services/logger';
 const router = Router();
 
 const ALLOWED_VIDEO = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-matroska', 'video/x-m4v', 'video/x-msvideo', 'video/x-flv', 'video/x-ms-wmv', 'video/3gpp', 'video/mpeg', 'video/ogg'];
-const ALLOWED_IMAGE = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+const ALLOWED_IMAGE = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const ALLOWED_DOC = [
   'application/pdf',
   'application/msword',
@@ -34,6 +34,25 @@ function isAllowed(mime: string): boolean {
   return ALLOWED.includes(mime);
 }
 
+const MAGIC: Record<string, (b: Buffer) => boolean> = {
+  'image/jpeg': (b) => b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff,
+  'image/png': (b) => b.length >= 8 && b[0] === 0x89 && b.toString('ascii', 1, 4) === 'PNG',
+  'image/webp': (b) => b.length >= 12 && b.toString('ascii', 0, 4) === 'RIFF' && b.toString('ascii', 8, 12) === 'WEBP',
+  'image/gif': (b) => b.length >= 4 && b.toString('ascii', 0, 4) === 'GIF8',
+  'application/pdf': (b) => b.length >= 4 && b.toString('ascii', 0, 4) === '%PDF',
+  'application/zip': (b) => b.length >= 2 && b[0] === 0x50 && b[1] === 0x4b,
+  'application/vnd.rar': (b) => b.length >= 7 && b.toString('ascii', 0, 7) === 'Rar!\x1a\x07',
+  'application/x-7z-compressed': (b) => b.length >= 6 && b.toString('ascii', 0, 6) === '7z\xbc\xaf\x27\x1c',
+  'text/plain': () => true,
+  'text/csv': () => true,
+};
+
+function sniffMime(declared: string, firstBytes: Buffer): boolean {
+  const check = MAGIC[declared];
+  if (!check) return true;
+  return check(firstBytes);
+}
+
 const tmpDir = path.resolve(process.cwd(), config.upload.path, '.tmp');
 fs.mkdirSync(tmpDir, { recursive: true });
 
@@ -52,7 +71,7 @@ const upload = multer({
 function extFor(mime: string): string {
   const map: Record<string, string> = {
     'video/mp4': 'mp4', 'video/webm': 'webm', 'video/quicktime': 'mov', 'video/x-matroska': 'mkv', 'video/x-m4v': 'm4v',
-    'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'image/svg+xml': 'svg',
+    'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif',
     'application/pdf': 'pdf',
     'application/msword': 'doc',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
@@ -85,9 +104,25 @@ router.post('/storage/upload', uploadLimiter, authenticate, (req: any, res) => {
     const tmpPath = req.file.path;
     const isImage = req.file.mimetype.startsWith('image/');
     const isVideo = req.file.mimetype.startsWith('video/');
-    const SKIP_IMAGE = ['image/gif', 'image/svg+xml'];
+    const SKIP_IMAGE = ['image/gif'];
 
     try {
+      const firstBytes = await new Promise<Buffer>((resolve, reject) => {
+        fs.open(tmpPath, 'r', (err, fd) => {
+          if (err) return reject(err);
+          const buf = Buffer.alloc(16);
+          fs.read(fd, buf, 0, 16, 0, (readErr, _n, data) => {
+            fs.close(fd, () => {});
+            if (readErr) return reject(readErr);
+            resolve(data);
+          });
+        });
+      });
+      if (!sniffMime(req.file.mimetype, firstBytes)) {
+        fs.unlink(tmpPath, () => {});
+        return res.status(400).json({ success: false, message: 'File content does not match its declared type' });
+      }
+
       if (isImage && !SKIP_IMAGE.includes(req.file.mimetype) && config.image.optimize) {
         const sharp = (await import('sharp')).default;
         const optimized = await sharp(tmpPath)

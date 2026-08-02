@@ -91,7 +91,7 @@ export const config = {
   logging: {
     level: process.env.LOG_LEVEL || 'info',
   },
-  trustProxy: process.env.TRUST_PROXY === 'true',
+  trustProxy: process.env.TRUST_PROXY === 'true' || !!process.env.VERCEL,
   cache: {
     provider: process.env.CACHE_PROVIDER || 'memory',
     ttl: parseInt(process.env.CACHE_TTL || '60'),
