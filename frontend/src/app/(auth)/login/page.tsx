@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { authApi } from '@/lib/api';
 import { AuthShell } from '@/components/shared/AuthShell';
+import { LegalDialog, type LegalTab } from '@/components/shared/LegalDialog';
 
 export default function LoginPage() {
   const { t } = useI18n();
@@ -14,6 +15,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [legalOpen, setLegalOpen] = useState(false);
+  const [legalTab, setLegalTab] = useState<LegalTab>('terms');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,6 +88,19 @@ export default function LoginPage() {
           <Link href="/register" className="text-primary hover:underline font-medium">{t.auth.createAccount}</Link>
         </p>
       </div>
+
+      <div className="mt-4 text-center text-xs leading-relaxed text-muted-foreground/80">
+        {t.auth.acceptTermsLogin}{' '}
+        <button type="button" onClick={() => { setLegalTab('terms'); setLegalOpen(true); }} className="text-primary hover:underline font-medium">
+          {t.auth.termsLink}
+        </button>{' '}
+        {t.auth.and}{' '}
+        <button type="button" onClick={() => { setLegalTab('privacy'); setLegalOpen(true); }} className="text-primary hover:underline font-medium">
+          {t.auth.privacyLink}
+        </button>
+      </div>
+
+      <LegalDialog open={legalOpen} onOpenChange={setLegalOpen} initialTab={legalTab} />
     </AuthShell>
   );
 }

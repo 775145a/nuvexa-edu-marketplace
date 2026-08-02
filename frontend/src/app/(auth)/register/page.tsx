@@ -6,13 +6,17 @@ import { useRouter } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { authApi } from '@/lib/api';
 import { AuthShell } from '@/components/shared/AuthShell';
+import { LegalDialog, type LegalTab } from '@/components/shared/LegalDialog';
 
 export default function RegisterPage() {
   const { t } = useI18n();
   const router = useRouter();
   const [form, setForm] = useState({ fullName: '', email: '', phone: '', password: '', confirmPassword: '', role: 'STUDENT' });
+  const [accepted, setAccepted] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [legalOpen, setLegalOpen] = useState(false);
+  const [legalTab, setLegalTab] = useState<LegalTab>('terms');
 
   const validate = () => {
     if (!form.fullName || form.fullName.length < 2) return t.auth.nameRequired;
@@ -22,6 +26,7 @@ export default function RegisterPage() {
     if (!/[a-z]/.test(form.password)) return t.auth.passwordLowercase;
     if (!/[0-9]/.test(form.password)) return t.auth.passwordNumber;
     if (form.password !== form.confirmPassword) return t.auth.passwordMismatch;
+    if (!accepted) return t.auth.termsRequired;
     return null;
   };
 
@@ -142,6 +147,25 @@ export default function RegisterPage() {
               />
             </div>
 
+            <label className="flex cursor-pointer items-start gap-2.5 text-xs leading-relaxed text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={accepted}
+                onChange={e => setAccepted(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-input accent-primary"
+              />
+              <span>
+                {t.auth.agreePrefix}{' '}
+                <button type="button" onClick={() => { setLegalTab('terms'); setLegalOpen(true); }} className="text-primary hover:underline font-semibold">
+                  {t.auth.termsLink}
+                </button>{' '}
+                {t.auth.and}{' '}
+                <button type="button" onClick={() => { setLegalTab('privacy'); setLegalOpen(true); }} className="text-primary hover:underline font-semibold">
+                  {t.auth.privacyLink}
+                </button>
+              </span>
+            </label>
+
             <button
               type="submit"
               disabled={loading}
@@ -162,6 +186,8 @@ export default function RegisterPage() {
               <Link href="/login" className="text-primary hover:underline font-medium">{t.auth.login}</Link>
             </p>
           </div>
+
+      <LegalDialog open={legalOpen} onOpenChange={setLegalOpen} initialTab={legalTab} />
     </AuthShell>
   );
 }
