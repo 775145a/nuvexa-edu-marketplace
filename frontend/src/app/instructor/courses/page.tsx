@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useI18n } from '@/lib/i18n/I18nProvider';
-import { instructorApi } from '@/lib/api';
+import { instructorApi, courseApi } from '@/lib/api';
 import { DashboardShell } from '@/components/layouts/DashboardShell';
 import { StatCard } from '@/components/ui/DataDisplay';
 import { Card } from '@/components/ui/Card';
@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/Input';
 import { EmptyState } from '@/components/ui/DataDisplay';
 import { formatPrice, formatDate, cn } from '@/lib/utils';
 import {
-  PlusCircle, Search, BookOpen, Users, Wallet, Star, ArrowLeft, Eye, AlertTriangle,
+  PlusCircle, Search, BookOpen, Users, Wallet, Star, ArrowLeft, Eye, AlertTriangle, Trash2,
 } from 'lucide-react';
 
 const FILTERS = ['ALL', 'APPROVED', 'PENDING_REVIEW', 'REJECTED', 'DRAFT'] as const;
@@ -47,6 +47,16 @@ export default function InstructorCoursesPage() {
     if (!q) return true;
     return (c.title || '').toLowerCase().includes(q) || (c.titleAr || '').toLowerCase().includes(q);
   });
+
+  const handleDelete = async (course: any) => {
+    if (!window.confirm(t.instructor.deleteCourseConfirm)) return;
+    try {
+      await courseApi.delete(course.id);
+      setCourses((prev) => prev.filter((c) => c.id !== course.id));
+    } catch {
+      window.alert(t.common.error);
+    }
+  };
 
   const totalStudents = courses.reduce((s, c) => s + (c.enrollmentCount || 0), 0);
   const totalRevenue = courses.reduce((s, c) => s + (c.totalRevenue || 0), 0);
@@ -160,6 +170,13 @@ export default function InstructorCoursesPage() {
                     <Link href={`/instructor/courses/${course.id}/manage`} className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary/10 px-3 text-xs font-semibold text-primary transition-colors hover:bg-primary/20">
                       <Eye className="h-3.5 w-3.5" /> {t.dash.editCourse}
                     </Link>
+                    <button
+                      onClick={() => handleDelete(course)}
+                      title={t.instructor.deleteCourse}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-crimson/20 bg-crimson/5 text-crimson transition-colors hover:bg-crimson/10"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
                     {course.status === 'APPROVED' && (
                       <Link href={`/courses/${course.slug}`} className="inline-flex h-8 items-center rounded-lg border border-border px-2.5 text-xs text-muted-foreground transition-colors hover:bg-muted">
                         <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" />

@@ -207,7 +207,9 @@ router.get('/mine', authenticate, async (req: AuthRequest, res) => {
     const limitNum = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
     const skip = (pageNum - 1) * limitNum;
 
-    const where = req.userRole === 'ADMIN' ? undefined : { instructorId: req.userId };
+    const where = req.userRole === 'ADMIN'
+      ? undefined
+      : { instructorId: req.userId, status: { not: 'DELETED' } };
     const [courses, total] = await Promise.all([
       prisma.course.findMany({
         where,
@@ -465,6 +467,28 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
     });
 
     res.json({ success: true, data: updated });
+    await invalidateCourseLists();
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const course = await prisma.course.findUnique({ where: { id: req.params.id } });
+    if (!course) return res.status(404).json({ success: false, message: 'Course not found' });
+
+    const isAdmin = req.userRole === 'ADMIN';
+    if (!isAdmin && course.instructorId !== req.userId) {
+      return res.status(403).json({ success: false, message: 'You can only delete your own courses' });
+    }
+
+    const deleted = await prisma.course.update({
+      where: { id: req.params.id },
+      data: { status: 'DELETED', isPublished: false },
+    });
+
+    res.json({ success: true, message: 'Course deleted successfully', data: deleted });
     await invalidateCourseLists();
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });

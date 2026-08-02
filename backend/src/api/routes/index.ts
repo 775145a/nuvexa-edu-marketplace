@@ -108,6 +108,22 @@ router.get('/stats', async (_req, res) => {
   }
 });
 
+router.get('/reviews', async (_req, res) => {
+  try {
+    const reviews = await prisma.review.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      include: {
+        student: { select: { id: true, fullName: true, avatarUrl: true } },
+        course: { select: { id: true, title: true, titleAr: true, slug: true } },
+      },
+    });
+    res.json({ success: true, data: reviews });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 router.get('/instructors', async (_req, res) => {
   try {
     const instructors = await prisma.user.findMany({

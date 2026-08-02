@@ -43,6 +43,7 @@ export const courseApi = {
   getProgress: (id: string) => request(`/courses/${id}/progress`),
   create: (data: any) => request('/courses', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: string, data: any) => request(`/courses/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: string) => request(`/courses/${id}`, { method: 'DELETE' }),
   submitReview: (id: string) => request(`/courses/${id}/submit-review`, { method: 'POST', body: JSON.stringify({}) }),
 };
 

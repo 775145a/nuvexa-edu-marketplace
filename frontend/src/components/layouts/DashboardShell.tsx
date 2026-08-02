@@ -138,7 +138,7 @@ export function DashboardShell({
         </div>
       </Link>
 
-      <div className="mx-4 mb-4 rounded-xl bg-gradient-to-br from-muted to-card p-4 ring-1 ring-border">
+      <div className="mx-4 mb-4 rounded-2xl bg-gradient-primary-soft p-4 ring-1 ring-primary/10">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10 ring-2 ring-white/60">
             <AvatarImage src={user?.avatarUrl || ''} />
@@ -198,8 +198,10 @@ export function DashboardShell({
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="fixed inset-y-0 start-0 z-40 hidden w-64 border-e border-border bg-card lg:block">
-        {SidebarContent}
+      <aside className="fixed inset-y-0 start-0 z-40 hidden w-64 p-3 lg:block">
+        <div className="h-full overflow-hidden rounded-[24px] border border-border/70 bg-card shadow-[0_8px_40px_-12px_rgba(15,23,42,0.14)]">
+          {SidebarContent}
+        </div>
       </aside>
 
       {mobileOpen && (
@@ -215,8 +217,8 @@ export function DashboardShell({
       )}
 
       <div className="flex min-w-0 flex-1 flex-col lg:ps-64">
-        <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl">
-          <div className="flex h-16 items-center gap-3 px-4 md:px-6">
+        <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl">
+          <div className="flex h-16 items-center gap-3 px-4 md:px-8">
             <button onClick={() => setMobileOpen(true)} className="rounded-lg p-2 text-muted-foreground hover:bg-muted lg:hidden">
               <Menu className="h-5 w-5" />
             </button>
@@ -329,7 +331,7 @@ export function DashboardShell({
           </div>
         </header>
 
-        <main className={cn('flex-1 px-4 py-6 md:px-6 lg:px-8', className)}>{children}</main>
+        <main className={cn('flex-1 px-4 py-6 md:px-8', className)}>{children}</main>
       </div>
     </div>
   );
