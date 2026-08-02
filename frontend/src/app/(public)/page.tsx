@@ -188,7 +188,7 @@ export default function HomePage() {
             transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="relative mx-auto hidden w-full max-w-lg lg:block"
           >
-            <HeroVisual t={t} />
+            <HeroVisual t={t} counts={counts} latestCourse={latest[0]} loading={loading} />
           </motion.div>
         </div>
       </section>
@@ -548,97 +548,134 @@ export default function HomePage() {
 
 /* ================= helpers ================= */
 
-function HeroVisual({ t }: { t: any }) {
+function HeroVisual({ t, counts, latestCourse, loading }: { t: any; counts: any; latestCourse: any; loading?: boolean }) {
+  const course = latestCourse || null;
+  const price = course?.discountedPrice ?? course?.price;
+  const title = course ? (course.titleAr || course.title) : '';
+  const instructor = course?.instructor?.fullName || '';
+
   return (
     <div className="relative">
       <div className="absolute -inset-6 -z-10 rounded-[40px] bg-gradient-primary-soft blur-2xl" />
 
-      {/* Main player card */}
+      {/* Main panel */}
       <motion.div
         animate={{ y: [0, -12, 0] }}
         transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
         className="relative overflow-hidden rounded-[28px] border border-white/60 bg-white shadow-hero"
       >
-        <div className="relative aspect-video overflow-hidden gradient-primary">
-          <div className="grid-bg absolute inset-0 opacity-40" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-xl">
-              <PlayCircle className="h-8 w-8 text-primary" fill="#fff" />
-            </div>
+        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+          <div className="flex items-center gap-2.5">
+            <LogoMark size={26} />
+            <span className="font-display text-sm font-bold text-foreground">Nuvexa</span>
           </div>
-          <div className="absolute bottom-3 start-3 rounded-full bg-black/35 px-3 py-1 text-xs font-semibold text-white backdrop-blur">Nuvexa Pro</div>
+          <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
+            {t.home.dashboardPreview}
+          </span>
         </div>
+
         <div className="p-5">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <div className="font-display text-sm font-bold text-foreground">Learn JavaScript</div>
-              <div className="mt-1 text-xs text-muted-foreground">Ahmed Hassan</div>
+          {course ? (
+            <Link
+              href={`/courses/${course.slug}`}
+              className="group block overflow-hidden rounded-2xl border border-border/60 shadow-soft transition-all duration-300 hover:shadow-card"
+            >
+              <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20">
+                {course.thumbnailUrl ? (
+                  <img src={course.thumbnailUrl} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-5xl">📖</div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+                <span className="absolute bottom-3 start-3 rounded-full bg-black/40 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur">
+                  {course.category?.nameAr || course.category?.name}
+                </span>
+              </div>
+              <div className="p-4">
+                <div className="line-clamp-1 font-display text-sm font-bold text-foreground">{title}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{instructor}</div>
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <span className="font-display text-base font-extrabold gradient-text">
+                    {price === 0 ? t.courses.free : `${Number(price ?? 0).toLocaleString()} ${course.currency || 'EGP'}`}
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-gradient-primary px-2.5 py-1.5 text-[11px] font-semibold text-white transition-colors group-hover:brightness-105">
+                    {t.home.startNow} <ArrowUpRight className="h-3 w-3 rtl:-scale-x-100" />
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ) : loading ? (
+            <div className="space-y-3">
+              <div className="skeleton aspect-video rounded-2xl" />
+              <div className="skeleton h-4 w-3/4" />
+              <div className="skeleton h-3 w-1/2" />
             </div>
-            <div className="rounded-xl bg-primary/10 px-3 py-1.5 text-sm font-extrabold text-primary">$19</div>
-          </div>
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
-            <div className="h-full w-[68%] rounded-full bg-gradient-to-r from-primary via-secondary to-accent" />
-          </div>
-          <div className="mt-2 flex justify-between text-[11px] text-muted-foreground">
-            <span>68%</span>
-            <span className="font-bold text-primary">Next.js</span>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-border bg-slate-50 px-5 py-8 text-center">
+              <LogoMark size={34} className="mx-auto" />
+              <div className="mt-3 font-display text-sm font-bold text-foreground">{t.home.comingSoon}</div>
+              <div className="mx-auto mt-1 max-w-[220px] text-xs leading-relaxed text-muted-foreground">{t.home.comingSoonDesc}</div>
+              <Link href="/courses" className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-gradient-primary px-4 py-2 text-xs font-semibold text-white transition-transform hover:-translate-y-0.5">
+                {t.home.browseCourses} <ArrowUpRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
+              </Link>
+            </div>
+          )}
+
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            <VisualStat value={counts?.courses ?? 0} label={t.home.statsLabelCourses} icon={<BookOpen className="h-4 w-4" />} loading={loading} />
+            <VisualStat value={counts?.students ?? 0} label={t.home.statsLabelStudents} icon={<Users className="h-4 w-4" />} loading={loading} />
+            <VisualStat value={counts?.instructors ?? 0} label={t.home.statsLabelInstructors} icon={<GraduationCap className="h-4 w-4" />} loading={loading} />
           </div>
         </div>
       </motion.div>
 
-      {/* Certificate badge */}
+      {/* Exams chip */}
       <motion.div
         animate={{ y: [0, -10, 0] }}
         transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
         className="absolute -end-4 top-8 flex items-center gap-3 rounded-2xl border border-white/70 bg-white/90 px-4 py-3 shadow-hero backdrop-blur"
       >
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-500">
-          <Award className="h-5 w-5" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/15 text-violet-600">
+          <FileCheck2 className="h-5 w-5" />
         </div>
         <div>
-          <div className="text-xs font-bold text-foreground">{t.home.whyCertificates}</div>
-          <div className="text-[11px] text-muted-foreground">{t.home.whyQuality}</div>
+          <div className="text-xs font-bold text-foreground">{t.home.examsChip}</div>
+          <div className="text-[11px] text-muted-foreground">{t.home.whyExamsDesc}</div>
         </div>
       </motion.div>
 
-      {/* Students badge */}
+      {/* Support chip */}
       <motion.div
         animate={{ y: [0, 12, 0] }}
         transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1.4 }}
         className="absolute -start-5 bottom-20 flex items-center gap-3 rounded-2xl border border-white/70 bg-white/90 px-4 py-3 shadow-hero backdrop-blur"
       >
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600">
-          <Users className="h-5 w-5" />
+          <Headset className="h-5 w-5" />
         </div>
         <div>
-          <div className="text-xs font-bold text-foreground">+2.4K {t.home.studentCount}</div>
-          <div className="text-[11px] text-muted-foreground">{t.home.statsLabelStudents}</div>
+          <div className="text-xs font-bold text-foreground">{t.home.supportChip}</div>
+          <div className="text-[11px] text-muted-foreground">{t.home.whySupportDesc}</div>
         </div>
       </motion.div>
+    </div>
+  );
+}
 
-      {/* AI badge */}
-      <motion.div
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
-        className="absolute -end-2 -bottom-4 flex items-center gap-2 rounded-2xl border border-white/70 bg-white/90 px-4 py-2.5 shadow-hero backdrop-blur"
-      >
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary text-white">
-          <Sparkles className="h-4 w-4" />
-        </div>
-        <div>
-          <div className="text-xs font-bold text-foreground">{t.home.tagAI}</div>
-          <div className="text-[11px] text-muted-foreground">2026</div>
-        </div>
-      </motion.div>
-
-      {/* Rating chip */}
-      <motion.div
-        animate={{ rotate: [0, 4, 0] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        className="absolute -start-3 top-6 flex items-center gap-1.5 rounded-full border border-white/70 bg-white/90 px-3 py-1.5 text-xs font-bold text-amber-500 shadow-hero backdrop-blur"
-      >
-        <Star className="h-4 w-4 fill-current" /> 4.9
-      </motion.div>
+function VisualStat({ value, label, icon, loading }: { value: number; label: string; icon: React.ReactNode; loading?: boolean }) {
+  return (
+    <div className="rounded-xl border border-border/60 bg-slate-50/70 px-2.5 py-2.5 text-center">
+      <div className="flex items-center justify-center gap-1.5 text-primary">
+        {icon}
+        {loading ? (
+          <div className="skeleton h-4 w-8 rounded" />
+        ) : (
+          <span className="font-display text-base font-extrabold text-foreground">
+            <CountUp to={value} />
+          </span>
+        )}
+      </div>
+      <div className="mt-0.5 truncate text-[10px] text-muted-foreground">{label}</div>
     </div>
   );
 }

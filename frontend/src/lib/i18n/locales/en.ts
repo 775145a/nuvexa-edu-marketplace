@@ -99,6 +99,12 @@ const en = {
     becomeInstructorCta: 'Become an Instructor',
     studentCount: 'students',
     ratingLabel: 'rating',
+    dashboardPreview: 'Learning Panel',
+    startNow: 'Start now',
+    comingSoon: 'New courses coming soon',
+    comingSoonDesc: 'Be the first to discover Nuvexa courses when they go live',
+    examsChip: 'Assessments & Exams',
+    supportChip: 'Direct Support',
   },
   courses: {
     title: 'Courses',

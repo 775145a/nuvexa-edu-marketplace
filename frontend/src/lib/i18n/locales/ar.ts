@@ -99,6 +99,12 @@ const ar = {
     becomeInstructorCta: 'كن مدربًا',
     studentCount: 'طالب',
     ratingLabel: 'تقييم',
+    dashboardPreview: 'لوحة التعلم',
+    startNow: 'ابدأ الآن',
+    comingSoon: 'كورساتنا الجديدة قادمة قريبًا',
+    comingSoonDesc: 'كن أول من يكتشف كورسات Nuvexa عندما تُنشر',
+    examsChip: 'اختبارات تقييم',
+    supportChip: 'دعم مباشر',
   },
   courses: {
     title: 'الكورسات',

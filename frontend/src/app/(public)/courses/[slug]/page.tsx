@@ -235,11 +235,13 @@ export default function CourseDetailPage() {
                     <div className="flex h-full items-center justify-center text-6xl">📖</div>
                   )}
                   <div className="absolute inset-0 bg-black/20" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-xl transition-transform hover:scale-110">
-                      <PlayCircle className="h-8 w-8 text-primary" fill="#fff" />
+                  {course.promoVideoUrl && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-xl transition-transform hover:scale-110">
+                        <PlayCircle className="h-8 w-8 text-primary" fill="#fff" />
+                      </div>
                     </div>
-                  </div>
+                  )}
                   <span className="absolute bottom-3 start-3 flex items-center gap-1 rounded-full bg-black/40 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
                     <Sparkles className="h-3.5 w-3.5" /> {t.courses.preview}
                   </span>
