@@ -114,6 +114,7 @@ router.get('/stats', async (_req, res) => {
 router.get('/reviews', async (_req, res) => {
   try {
     const reviews = await prisma.review.findMany({
+      where: { course: { is: { status: 'APPROVED' } } },
       orderBy: { createdAt: 'desc' },
       take: 10,
       include: {
@@ -134,7 +135,7 @@ router.get('/instructors', async (_req, res) => {
       select: {
         id: true, fullName: true, email: true, avatarUrl: true,
         instructorProfile: { select: { headline: true, isVerified: true, biography: true } },
-        _count: { select: { courses: true } },
+        _count: { select: { courses: { where: { status: 'APPROVED', isPublished: true } } } },
       },
     });
     res.json({ success: true, data: instructors });
@@ -156,7 +157,7 @@ router.get('/instructors/:id', async (req, res) => {
           orderBy: { createdAt: 'desc' },
           take: 20,
         },
-        _count: { select: { courses: true } },
+        _count: { select: { courses: { where: { status: 'APPROVED', isPublished: true } } } },
       },
     });
     if (!instructor) return res.status(404).json({ success: false, message: 'Instructor not found' });

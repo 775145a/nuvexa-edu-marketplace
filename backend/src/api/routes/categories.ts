@@ -14,7 +14,7 @@ router.get('/', async (_req, res) => {
       where: { isActive: true },
       orderBy: { order: 'asc' },
       include: {
-        _count: { select: { courses: true } },
+        _count: { select: { courses: { where: { status: 'APPROVED', isPublished: true } } } },
         children: { where: { isActive: true }, select: { id: true, name: true, slug: true } },
       },
     });

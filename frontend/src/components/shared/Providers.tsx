@@ -15,8 +15,7 @@ export function Providers({ children }: { children: ReactNode }) {
     }
 
     const storedTheme = localStorage.getItem('nuvexa_theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = storedTheme ? storedTheme === 'dark' : prefersDark;
+    const isDark = storedTheme ? storedTheme === 'dark' : true;
     document.documentElement.classList.toggle('dark', isDark);
     window.dispatchEvent(new CustomEvent('nuvexa-theme', { detail: isDark }));
   }, []);

@@ -27,6 +27,7 @@ router.use(authorize('ADMIN'));
 router.get('/courses', async (_req: AuthRequest, res) => {
   try {
     const courses = await prisma.course.findMany({
+      where: { status: { not: 'DELETED' } },
       orderBy: { createdAt: 'desc' },
       take: 500,
       include: {

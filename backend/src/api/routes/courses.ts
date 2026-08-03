@@ -5,11 +5,22 @@ import { cache } from '../../services/cache';
 import { config } from '../../config';
 import { Prisma } from '@prisma/client';
 import { getRequestUser, canAccessCourse, sanitizeLectures } from '../../services/access';
+import { logAudit } from '../../services/audit';
 
 const router = Router();
 
 const OTHER_CATEGORY_VALUE = '__other__';
 const OTHER_CATEGORY_SLUG = 'other';
+
+function actorIp(req: any): string | null {
+  return (
+    req.ip ||
+    (typeof req.headers?.['x-forwarded-for'] === 'string'
+      ? req.headers['x-forwarded-for'].split(',')[0].trim()
+      : null) ||
+    null
+  );
+}
 
 async function resolveCategoryId(categoryId: string): Promise<string> {
   if (categoryId !== OTHER_CATEGORY_VALUE) return categoryId;
@@ -534,6 +545,16 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
     const deleted = await prisma.course.update({
       where: { id: req.params.id },
       data: { status: 'DELETED', isPublished: false },
+    });
+
+    await logAudit({
+      adminId: req.userId!,
+      action: 'COURSE_DELETE',
+      entity: 'Course',
+      entityId: course.id,
+      before: { status: course.status, title: course.title },
+      after: { status: deleted.status, isPublished: deleted.isPublished },
+      ipAddress: actorIp(req),
     });
 
     res.json({ success: true, message: 'Course deleted successfully', data: deleted });

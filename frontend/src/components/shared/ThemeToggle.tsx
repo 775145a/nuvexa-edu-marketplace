@@ -13,7 +13,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   useEffect(() => {
     setMounted(true);
     const stored = localStorage.getItem('nuvexa_theme');
-    setDark(stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches);
+    setDark(stored ? stored === 'dark' : true);
   }, []);
 
   const toggle = () => {

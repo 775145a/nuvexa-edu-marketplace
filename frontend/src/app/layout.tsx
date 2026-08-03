@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from 'next';
+import { headers } from 'next/headers';
 import './globals.css';
 import { Providers } from '@/components/shared/Providers';
 import { RouteProgress } from '@/components/shared/RouteProgress';
 
 export const dynamic = 'force-dynamic';
+
+const THEME_BOOTSTRAP = `(function(){try{var s=localStorage.getItem('nuvexa_theme');var dark=s?s==='dark':true;document.documentElement.classList.toggle('dark',dark);}catch(e){}})();`;
 
 const SITE_NAME = 'Nuvexa';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://nuvexa-edu.vercel.app';
@@ -62,10 +65,13 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const h = await headers();
+  const nonce = h.get('x-nonce') || '';
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body>
+        {nonce && <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />}
         <RouteProgress />
         <Providers>{children}</Providers>
       </body>
