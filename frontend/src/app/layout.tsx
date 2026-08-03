@@ -3,6 +3,8 @@ import './globals.css';
 import { Providers } from '@/components/shared/Providers';
 import { RouteProgress } from '@/components/shared/RouteProgress';
 
+export const dynamic = 'force-dynamic';
+
 const SITE_NAME = 'Nuvexa';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://nuvexa-edu.vercel.app';
 
