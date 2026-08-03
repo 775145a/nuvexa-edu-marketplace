@@ -6,14 +6,18 @@ import { getStorage } from './storage';
 const BACKUP_PREFIX = 'backups/';
 const KEEP = 14;
 
+function camelCase(s: string): string {
+  return s.charAt(0).toLowerCase() + s.slice(1);
+}
+
 function modelNames(): string[] {
-  return Prisma.dmmf.datamodel.models.map((m) => m.dbName || m.name);
+  return Object.values(Prisma.ModelName || {});
 }
 
 async function dumpAll(): Promise<Record<string, unknown[]>> {
   const dump: Record<string, unknown[]> = {};
   for (const name of modelNames()) {
-    const delegate = (prisma as any)[name];
+    const delegate = (prisma as any)[camelCase(name)];
     if (!delegate || typeof delegate.findMany !== 'function') continue;
     dump[name] = await delegate.findMany();
   }

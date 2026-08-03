@@ -11,14 +11,14 @@ const KEEP = 14;
 
 async function modelNames() {
   const { Prisma } = require('../generated/client');
-  return Prisma.dmmf.datamodel.models.map((m) => m.dbName || m.name);
+  return Object.values(Prisma.ModelName || {});
 }
 
 async function run() {
   const names = await modelNames();
   const dump = {};
   for (const name of names) {
-    const delegate = prisma[name];
+    const delegate = prisma[name.charAt(0).toLowerCase() + name.slice(1)];
     if (!delegate || typeof delegate.findMany !== 'function') continue;
     dump[name] = await delegate.findMany();
   }
