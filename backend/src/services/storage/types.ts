@@ -29,4 +29,5 @@ export interface StorageProvider {
   getSignedUrl(key: string, opts?: SignedUrlOptions): Promise<string>;
   deleteFile(key: string): Promise<void>;
   getFile(key: string): Promise<{ stream: NodeJS.ReadableStream; mimeType: string; size: number } | null>;
+  listFiles(prefix: string): Promise<string[]>;
 }

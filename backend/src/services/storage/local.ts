@@ -88,6 +88,20 @@ export class LocalStorageProvider implements StorageProvider {
     return { stream: fs.createReadStream(target) as unknown as NodeJS.ReadableStream, mimeType, size: stat.size };
   }
 
+  async listFiles(prefix: string): Promise<string[]> {
+    if (!fs.existsSync(this.root)) return [];
+    const out: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else out.push(path.relative(this.root, full).split(path.sep).join('/'));
+      }
+    };
+    walk(this.root);
+    return out.filter((k) => k.startsWith(prefix)).sort();
+  }
+
   verifySignature(key: string, expiresAt: number, sig: string): boolean {
     const now = Math.floor(Date.now() / 1000);
     if (!sig || !expiresAt || expiresAt < now) return false;

@@ -13,6 +13,7 @@ import storageRoutes from './storage';
 import videoJobRoutes from './videoJobs';
 import couponRoutes from './coupons';
 import lectureCommentRoutes from './lectureComments';
+import systemRoutes from './system';
 import { prisma } from '../../services/prisma';
 import { verifyAccessToken } from '../../services/auth';
 import { attachLectureStats } from './courses';
@@ -39,6 +40,7 @@ router.use('/', storageRoutes);
 router.use('/', videoJobRoutes);
 router.use('/coupons', couponRoutes);
 router.use('/', lectureCommentRoutes);
+router.use('/system', systemRoutes);
 
 router.get('/stats', async (_req, res) => {
   try {

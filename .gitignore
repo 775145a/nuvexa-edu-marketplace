@@ -19,6 +19,9 @@ backend/generated/
 backend/prisma/*.db
 backend/prisma/*.db-journal
 
+# DB backups — never commit
+backend/backups/
+
 # Local temp / OS
 *.tmp
 Thumbs.db

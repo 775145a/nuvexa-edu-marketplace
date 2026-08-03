@@ -107,4 +107,25 @@ export class S3StorageProvider implements StorageProvider {
     if (this.publicBaseUrl) return `${this.publicBaseUrl.replace(/\/$/, '')}/${encodeURIComponent(key)}`;
     return this.getSignedUrl(key);
   }
+
+  async listFiles(prefix: string): Promise<string[]> {
+    const client = await this.getClient();
+    const { ListObjectsV2Command } = await this.buildS3Import();
+    const keys: string[] = [];
+    let token: string | undefined;
+    do {
+      const res = await client.send(
+        new ListObjectsV2Command({
+          Bucket: this.bucket,
+          Prefix: prefix,
+          ContinuationToken: token,
+        })
+      );
+      for (const obj of res.Contents || []) {
+        if (obj.Key) keys.push(obj.Key);
+      }
+      token = res.IsTruncated ? res.NextContinuationToken : undefined;
+    } while (token);
+    return keys.sort();
+  }
 }
