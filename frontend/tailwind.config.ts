@@ -71,9 +71,9 @@ const config: Config = {
       },
       borderRadius: { lg: 'var(--radius)', md: 'calc(var(--radius) - 2px)', sm: 'calc(var(--radius) - 4px)' },
       fontFamily: {
-        sans: ['Inter', 'Alexandria', 'Cairo', 'system-ui', 'sans-serif'],
-        display: ['Inter', 'Alexandria', 'Cairo', 'system-ui', 'sans-serif'],
-        arabic: ['"Alexandria"', '"Cairo"', '"Noto Sans Arabic"', 'system-ui', 'sans-serif'],
+        sans: ['Inter', '"Noto Kufi Arabic"', 'system-ui', 'sans-serif'],
+        display: ['Inter', '"Noto Kufi Arabic"', 'system-ui', 'sans-serif'],
+        arabic: ['"Noto Kufi Arabic"', '"Inter"', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       keyframes: {

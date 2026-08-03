@@ -1,19 +1,20 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { courseApi, categoryApi } from '@/lib/api';
+import { CourseCard } from '@/components/shared/CourseCard';
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 function CoursesContent() {
   const { t, locale } = useI18n();
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [courses, setCourses] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState(searchParams.get('q') || '');
+  const [search, setSearch] = useState(searchParams.get('search') || '');
   const [category, setCategory] = useState(searchParams.get('category') || '');
   const [level, setLevel] = useState('');
   const [sort, setSort] = useState('newest');
@@ -40,39 +41,55 @@ function CoursesContent() {
 
   return (
     <div className="container py-8">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
+      {/* Header */}
+      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-3xl font-display font-bold">{t.courses.explore}</h1>
+          <h1 className="font-display text-3xl font-extrabold text-foreground md:text-4xl">{t.courses.title}</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">{t.courses.explore}</p>
         </div>
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="relative flex-1 md:w-72">
-            <input
-              type="text"
-              placeholder={t.courses.search}
-              value={search}
-              onChange={e => { setSearch(e.target.value); setPage(1); }}
-              className="w-full px-4 py-2.5 rounded-xl border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
+        <div className="flex w-full items-center gap-2 rounded-full border border-border bg-card p-1.5 md:w-80">
+          <Search className="ms-3 h-5 w-5 shrink-0 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder={t.home.searchPlaceholder}
+            value={search}
+            onChange={e => { setSearch(e.target.value); setPage(1); }}
+            className="h-10 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+          />
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-8 p-4 rounded-xl border border-border bg-card">
-        <select
-          value={category}
-          onChange={e => { setCategory(e.target.value); setPage(1); }}
-          className="px-3 py-2 rounded-lg border border-input bg-background text-sm"
+      {/* Category chips */}
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <button
+          onClick={() => { setCategory(''); setPage(1); }}
+          className={cn(
+            'rounded-full border px-4 py-2 text-sm font-semibold transition-colors',
+            category === '' ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-primary',
+          )}
         >
-          <option value="">{t.common.all} {t.courses.title}</option>
-          {categories.map((cat: any) => (
-            <option key={cat.id} value={cat.id}>{locale === 'ar' ? (cat.nameAr || cat.name) : cat.name}</option>
-          ))}
-        </select>
+          {t.common.all}
+        </button>
+        {categories.map((cat: any) => (
+          <button
+            key={cat.id}
+            onClick={() => { setCategory(cat.id); setPage(1); }}
+            className={cn(
+              'rounded-full border px-4 py-2 text-sm font-semibold transition-colors',
+              category === cat.id ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-primary',
+            )}
+          >
+            {locale === 'ar' ? (cat.nameAr || cat.name) : cat.name}
+          </button>
+        ))}
+      </div>
+
+      {/* Level + sort */}
+      <div className="mb-8 flex flex-wrap items-center gap-3">
         <select
           value={level}
           onChange={e => { setLevel(e.target.value); setPage(1); }}
-          className="px-3 py-2 rounded-lg border border-input bg-background text-sm"
+          className="rounded-full border border-border bg-card px-4 py-2 text-sm outline-none focus:border-primary/40"
         >
           <option value="">{t.courses.allLevels}</option>
           {levels.map(l => (
@@ -82,7 +99,7 @@ function CoursesContent() {
         <select
           value={sort}
           onChange={e => setSort(e.target.value)}
-          className="px-3 py-2 rounded-lg border border-input bg-background text-sm"
+          className="rounded-full border border-border bg-card px-4 py-2 text-sm outline-none focus:border-primary/40"
         >
           <option value="newest">{t.courses.newest}</option>
           <option value="popular">{t.courses.popular}</option>
@@ -94,78 +111,54 @@ function CoursesContent() {
 
       {/* Results */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="rounded-xl border border-border overflow-hidden">
+            <div key={i} className="overflow-hidden rounded-2xl border border-border bg-card">
               <div className="aspect-video skeleton" />
-              <div className="p-4 space-y-3">
-                <div className="h-4 skeleton w-3/4" />
-                <div className="h-3 skeleton w-1/2" />
-                <div className="h-4 skeleton w-1/3" />
+              <div className="space-y-3 p-4">
+                <div className="skeleton h-4 w-3/4" />
+                <div className="skeleton h-3 w-1/2" />
+                <div className="skeleton h-4 w-1/3" />
               </div>
             </div>
           ))}
         </div>
       ) : courses.length === 0 ? (
-        <div className="text-center py-20">
-          <div className="text-5xl mb-4">🔍</div>
-          <h3 className="text-lg font-semibold mb-2">{t.courses.noResults}</h3>
-          <p className="text-muted-foreground">{t.courses.adjustFilters}</p>
+        <div className="rounded-3xl border border-dashed border-border bg-card/50 py-20 text-center">
+          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+            <Search className="h-8 w-8 text-primary" />
+          </span>
+          <h3 className="mt-5 font-display text-xl font-bold text-foreground">{t.courses.noResults}</h3>
+          <p className="mx-auto mt-1.5 max-w-md text-sm text-muted-foreground">{t.courses.adjustFilters}</p>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {courses.map((course: any) => (
-              <Link
-                key={course.id}
-                href={`/courses/${course.slug}`}
-                className="group rounded-xl border border-border bg-card overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all"
-              >
-                <div className="aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                  {course.thumbnailUrl ? (
-                    <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover" />
-                  ) : <div className="text-4xl">📖</div>}
-                </div>
-                <div className="p-4">
-                  <h3 className="font-semibold group-hover:text-primary transition-colors line-clamp-2">
-                    {locale === 'ar' ? (course.titleAr || course.title) : course.title}
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-1">{course.instructor?.fullName}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      course.level === 'BEGINNER' ? 'bg-emerald-100 text-emerald-700' :
-                      course.level === 'INTERMEDIATE' ? 'bg-blue-100 text-blue-700' :
-                      course.level === 'ADVANCED' ? 'bg-rose-100 text-rose-700' :
-                      'bg-amber-100 text-amber-700'
-                    }`}>
-                      {getLevelLabel(course.level, t)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between mt-3">
-                    <span className="text-sm font-bold text-primary">
-                      {course.discountedPrice && course.discountedPrice < course.price
-                        ? `${course.discountedPrice.toLocaleString()} EGP`
-                        : `${course.price.toLocaleString()} EGP`}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {course.enrollmentCount} {t.courses.students}
-                    </span>
-                  </div>
-                </div>
-              </Link>
+              <CourseCard key={course.id} course={course} showPrice />
             ))}
           </div>
 
           {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-12">
-              <button disabled={page <= 1} onClick={() => setPage(page - 1)}
-                className="px-4 py-2 rounded-lg border border-border text-sm disabled:opacity-50 hover:bg-accent">
-                {t.common.previous}
+            <div className="mt-12 flex items-center justify-center gap-2">
+              <button
+                disabled={page <= 1}
+                onClick={() => setPage(page - 1)}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-sm disabled:opacity-50 hover:border-primary/40"
+                aria-label={t.common.previous}
+              >
+                <ChevronRight className="h-4 w-4 rtl:hidden" />
+                <ChevronLeft className="hidden h-4 w-4 rtl:block" />
               </button>
               <span className="px-4 py-2 text-sm text-muted-foreground">{page} / {totalPages}</span>
-              <button disabled={page >= totalPages} onClick={() => setPage(page + 1)}
-                className="px-4 py-2 rounded-lg border border-border text-sm disabled:opacity-50 hover:bg-accent">
-                {t.common.next}
+              <button
+                disabled={page >= totalPages}
+                onClick={() => setPage(page + 1)}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-sm disabled:opacity-50 hover:border-primary/40"
+                aria-label={t.common.next}
+              >
+                <ChevronLeft className="h-4 w-4 rtl:hidden" />
+                <ChevronRight className="hidden h-4 w-4 rtl:block" />
               </button>
             </div>
           )}
@@ -188,11 +181,11 @@ function getLevelLabel(level: string, t: any): string {
 function CoursesFallback() {
   return (
     <div className="container py-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {[...Array(8)].map((_, i) => (
-          <div key={i} className="rounded-xl border border-border overflow-hidden">
+          <div key={i} className="overflow-hidden rounded-2xl border border-border bg-card">
             <div className="aspect-video skeleton" />
-            <div className="p-4 space-y-3">
+            <div className="space-y-3 p-4">
               <div className="h-4 skeleton w-3/4" />
               <div className="h-3 skeleton w-1/2" />
               <div className="h-4 skeleton w-1/3" />

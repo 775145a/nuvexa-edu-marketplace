@@ -1,23 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Alexandria:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Kufi+Arabic:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 200 8% 5%;
+  --background: 0 0% 95%;
+  --foreground: 0 0% 9%;
   --card: 0 0% 100%;
-  --card-foreground: 200 8% 5%;
+  --card-foreground: 0 0% 9%;
   --popover: 0 0% 100%;
-  --popover-foreground: 200 8% 5%;
+  --popover-foreground: 0 0% 9%;
 
-  --primary: 359 84% 52%;
+  --primary: 358 83% 52%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 358 100% 55%;
+  --secondary: 8 100% 54%;
   --secondary-foreground: 0 0% 100%;
 
-  --accent: 358 100% 73%;
+  --accent: 8 100% 75%;
   --accent-foreground: 0 0% 12%;
 
   --success: 160 84% 39%;
@@ -26,32 +26,32 @@
   --warning: 38 92% 50%;
   --warning-foreground: 224 30% 10%;
 
-  --muted: 0 0% 95%;
+  --muted: 0 0% 91%;
   --muted-foreground: 180 4% 38%;
   --destructive: 358 74% 45%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 0 0% 90%;
-  --input: 0 0% 90%;
-  --ring: 359 84% 52%;
-  --radius: 1.5rem;
+  --border: 0 0% 91%;
+  --input: 0 0% 91%;
+  --ring: 358 83% 52%;
+  --radius: 1rem;
 }
 
 .dark {
-  --background: 200 7% 7%;
-  --foreground: 0 0% 94%;
-  --card: 200 5% 10%;
-  --card-foreground: 0 0% 94%;
-  --popover: 200 5% 10%;
-  --popover-foreground: 0 0% 94%;
+  --background: 180 4% 5%;
+  --foreground: 0 0% 95%;
+  --card: 180 6% 8%;
+  --card-foreground: 0 0% 95%;
+  --popover: 180 6% 8%;
+  --popover-foreground: 0 0% 95%;
 
-  --primary: 359 84% 55%;
+  --primary: 358 83% 55%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 358 100% 60%;
+  --secondary: 8 100% 57%;
   --secondary-foreground: 0 0% 100%;
 
-  --accent: 358 90% 38%;
+  --accent: 358 70% 46%;
   --accent-foreground: 0 0% 96%;
 
   --success: 160 70% 42%;
@@ -60,15 +60,15 @@
   --warning: 38 92% 52%;
   --warning-foreground: 224 30% 10%;
 
-  --muted: 200 5% 14%;
-  --muted-foreground: 180 3% 62%;
+  --muted: 180 5% 13%;
+  --muted-foreground: 0 0% 63%;
   --destructive: 358 70% 50%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 200 4% 17%;
-  --input: 200 4% 17%;
-  --ring: 359 84% 55%;
-  --radius: 1.5rem;
+  --border: 180 5% 15%;
+  --input: 180 5% 15%;
+  --ring: 358 83% 55%;
+  --radius: 1rem;
 }
 
 * { box-sizing: border-box; }
@@ -76,7 +76,7 @@
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Inter', 'Alexandria', 'Cairo', system-ui, sans-serif;
+  font-family: 'Inter', 'Noto Kufi Arabic', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -94,7 +94,7 @@ body {
 body { transition: background-color 0.35s ease, color 0.35s ease; }
 
 [dir="rtl"] body {
-  font-family: 'Alexandria', 'Inter', 'Cairo', system-ui, sans-serif;
+  font-family: 'Noto Kufi Arabic', 'Inter', system-ui, sans-serif;
 }
 
 @layer base {
@@ -103,8 +103,8 @@ body { transition: background-color 0.35s ease, color 0.35s ease; }
 }
 
 @layer utilities {
-  .font-display { font-family: 'Inter', 'Alexandria', system-ui, sans-serif; }
-  [dir="rtl"] .font-display { font-family: 'Alexandria', 'Inter', system-ui, sans-serif; }
+  .font-display { font-family: 'Inter', 'Noto Kufi Arabic', system-ui, sans-serif; }
+  [dir="rtl"] .font-display { font-family: 'Noto Kufi Arabic', 'Inter', system-ui, sans-serif; }
 
   .gradient-navy {
     background: linear-gradient(135deg, #26292f 0%, #34383f 40%, #3d424b 100%);

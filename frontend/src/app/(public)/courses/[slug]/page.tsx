@@ -107,14 +107,14 @@ export default function CourseDetailPage() {
   if (loading) {
     return (
       <div className="container py-8">
-        <div className="skeleton h-72 rounded-[28px] mb-8" />
+        <div className="skeleton h-72 rounded-2xl mb-8" />
         <div className="grid grid-cols-3 gap-8">
           <div className="col-span-2 space-y-4">
             <div className="skeleton h-8 w-3/4" />
             <div className="skeleton h-4 w-1/2" />
-            <div className="skeleton h-32 rounded-[20px]" />
+            <div className="skeleton h-32 rounded-xl" />
           </div>
-          <div className="skeleton h-96 rounded-[24px]" />
+          <div className="skeleton h-96 rounded-2xl" />
         </div>
       </div>
     );
@@ -154,10 +154,7 @@ export default function CourseDetailPage() {
   return (
     <div className="pb-10">
       {/* ============ HERO ============ */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-primary/[0.05] via-background to-background">
-        <div className="blob start-[5%] top-[-10%] h-[360px] w-[360px] bg-blue-300/50" />
-        <div className="blob end-[-6%] top-[15%] h-[320px] w-[320px] bg-rose-300/40" style={{ animationDelay: '-8s' }} />
-
+      <section className="relative overflow-hidden border-b border-border/60 bg-background">
         <div className="container relative py-10 md:py-16">
           <div className="grid gap-10 lg:grid-cols-3">
             <div className="lg:col-span-2">
@@ -227,7 +224,7 @@ export default function CourseDetailPage() {
 
             {/* Promo card */}
             <div className="lg:col-span-1">
-              <div className="sticky top-24 overflow-hidden rounded-[28px] border border-border/70 bg-card shadow-hero">
+              <div className="sticky top-24 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-hero">
                 <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20">
                   {course.thumbnailUrl ? (
                     <img src={course.thumbnailUrl} alt={course.title} className="h-full w-full object-cover" />
@@ -365,7 +362,7 @@ export default function CourseDetailPage() {
                   let objs = locale === 'ar' ? (course.objectivesAr || course.objectives) : course.objectives;
                   try { objs = JSON.parse(objs); } catch { objs = []; }
                   return Array.isArray(objs) && objs.length > 0 ? (
-                    <section className="rounded-[24px] border border-border/70 bg-card p-6 shadow-soft md:p-8">
+                    <section className="rounded-2xl border border-border/70 bg-card p-6 shadow-soft md:p-8">
                       <h2 className="font-display text-xl font-bold">{t.courses.whatYouLearn}</h2>
                       <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
                         {objs.map((obj: string, i: number) => (
@@ -481,7 +478,7 @@ export default function CourseDetailPage() {
                     </div>
                   ))}
                 {totalExams === 0 && (
-                  <div className="rounded-[24px] border border-dashed border-border bg-card/50 py-14 text-center">
+                  <div className="rounded-2xl border border-dashed border-border bg-card/50 py-14 text-center">
                     <FileText className="mx-auto h-10 w-10 text-muted-foreground/40" />
                     <p className="mt-3 text-sm text-muted-foreground">{t.common.noData}</p>
                   </div>
@@ -508,7 +505,7 @@ export default function CourseDetailPage() {
                     </div>
                   ))}
                 {totalFiles === 0 && (
-                  <div className="rounded-[24px] border border-dashed border-border bg-card/50 py-14 text-center">
+                  <div className="rounded-2xl border border-dashed border-border bg-card/50 py-14 text-center">
                     <File className="mx-auto h-10 w-10 text-muted-foreground/40" />
                     <p className="mt-3 text-sm text-muted-foreground">{t.common.noData}</p>
                   </div>
@@ -520,7 +517,7 @@ export default function CourseDetailPage() {
             <section>
               <h2 className="mb-5 font-display text-xl font-bold">{t.courses.reviews} ({reviews.length})</h2>
               <div className="grid gap-5 md:grid-cols-[220px_1fr]">
-                <div className="flex flex-col items-center justify-center rounded-[24px] border border-border/70 bg-card p-6 shadow-soft">
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-border/70 bg-card p-6 shadow-soft">
                   <span className="font-display text-5xl font-extrabold">{avgRating.toFixed(1)}</span>
                   <div className="mt-2 flex items-center gap-0.5">
                     {[...Array(5)].map((_, i) => (
@@ -531,7 +528,7 @@ export default function CourseDetailPage() {
                 </div>
                 <div className="space-y-3">
                   {reviews.length === 0 ? (
-                    <div className="rounded-[24px] border border-dashed border-border bg-card/50 py-14 text-center">
+                    <div className="rounded-2xl border border-dashed border-border bg-card/50 py-14 text-center">
                       <Star className="mx-auto h-10 w-10 text-muted-foreground/40" />
                       <p className="mt-3 text-sm text-muted-foreground">{t.common.noData}</p>
                     </div>
@@ -562,7 +559,7 @@ export default function CourseDetailPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            <div className="rounded-[24px] border border-border/70 bg-card p-6 shadow-soft">
+            <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-soft">
               <h3 className="font-display text-lg font-bold">{t.courses.instructor}</h3>
               <div className="mt-4 flex items-center gap-3">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-primary text-lg font-bold text-white">
@@ -582,7 +579,7 @@ export default function CourseDetailPage() {
               let reqs = locale === 'ar' ? (course.requirementsAr || course.requirements) : course.requirements;
               try { reqs = JSON.parse(reqs); } catch { reqs = []; }
               return Array.isArray(reqs) && reqs.length > 0 ? (
-                <div className="rounded-[24px] border border-border/70 bg-card p-6 shadow-soft">
+                <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-soft">
                   <h3 className="flex items-center gap-2 font-display text-lg font-bold">
                     <GraduationCap className="h-5 w-5 text-primary" /> {t.courses.requirements}
                   </h3>

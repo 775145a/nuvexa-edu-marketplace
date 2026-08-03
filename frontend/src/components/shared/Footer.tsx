@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useI18n } from '@/lib/i18n/I18nProvider';
-import { Logo } from '@/components/shared/Logo';
+import { Wordmark } from '@/components/shared/Logo';
 import { WHATSAPP_LINK, SUPPORT_PHONE_INTL } from '@/lib/api';
 
 export function Footer() {
@@ -10,33 +10,84 @@ export function Footer() {
 
   const exploreLinks = [
     { href: '/courses', label: t.footer.courses },
-    { href: '/courses', label: t.footer.instructors },
-    { href: '/courses', label: t.footer.categories },
+    { href: '/categories', label: t.footer.categories },
+    { href: '/#instructors', label: t.footer.instructors },
   ];
 
-  const platformLinks = [
-    { href: '/', label: t.footer.about },
-    { href: '/', label: t.footer.contact },
+  const companyLinks = [
     { href: '/privacy', label: t.footer.privacy },
     { href: '/terms', label: t.footer.terms },
-  ];
-
-  const supportLinks = [
     { href: WHATSAPP_LINK(''), label: t.footer.whatsapp },
     { href: 'mailto:almisriualqaysar@gmail.com', label: t.footer.email },
+  ];
+
+  const startLinks = [
+    { href: '/register', label: t.nav.register },
+    { href: '/login', label: t.nav.login },
+    { href: '/courses', label: t.home.browseCourses },
   ];
 
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative mt-20 border-t border-border bg-background">
-      <div className="container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+    <footer className="relative mt-20 border-t border-border/60 bg-background">
+      <div className="container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <div>
           <Link href="/" className="inline-flex transition-opacity hover:opacity-90">
-            <Logo size={40} />
+            <Wordmark />
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">{t.footer.tagline}</p>
-          <div className="mt-5 flex items-center gap-2">
+          <p className="mt-4 text-sm font-semibold text-muted-foreground" dir="ltr">
+            +20 {SUPPORT_PHONE_INTL.slice(2)}
+          </p>
+        </div>
+
+        <div>
+          <h4 className="text-sm font-bold text-foreground">{t.footer.explore}</h4>
+          <ul className="mt-4 space-y-2.5">
+            {exploreLinks.map(link => (
+              <li key={link.label}>
+                <Link href={link.href} className="text-sm text-muted-foreground transition-colors hover:text-primary">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-sm font-bold text-foreground">{t.footer.company}</h4>
+          <ul className="mt-4 space-y-2.5">
+            {companyLinks.map(link => (
+              <li key={link.label}>
+                <a href={link.href} className="text-sm text-muted-foreground transition-colors hover:text-primary">
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-sm font-bold text-foreground">{t.home.startLearning}</h4>
+          <ul className="mt-4 space-y-2.5">
+            {startLinks.map(link => (
+              <li key={link.label}>
+                <Link href={link.href} className="text-sm text-muted-foreground transition-colors hover:text-primary">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div className="border-t border-border/60">
+        <div className="container flex flex-col items-center justify-between gap-3 py-5 sm:flex-row">
+          <p className="text-xs text-muted-foreground">
+            © {year} Nuvexa. {t.footer.rights}
+          </p>
+          <div className="flex items-center gap-3">
             <a
               href={WHATSAPP_LINK('')}
               target="_blank"
@@ -59,56 +110,6 @@ export function Footer() {
               </svg>
             </a>
           </div>
-        </div>
-
-        <div>
-          <h4 className="text-sm font-bold text-foreground">{t.footer.explore}</h4>
-          <ul className="mt-4 space-y-2.5">
-            {exploreLinks.map(link => (
-              <li key={link.label}>
-                <Link href={link.href} className="text-sm text-muted-foreground transition-colors hover:text-primary">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="text-sm font-bold text-foreground">{t.footer.company}</h4>
-          <ul className="mt-4 space-y-2.5">
-            {platformLinks.map(link => (
-              <li key={link.label}>
-                <Link href={link.href} className="text-sm text-muted-foreground transition-colors hover:text-primary">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="text-sm font-bold text-foreground">{t.footer.support}</h4>
-          <ul className="mt-4 space-y-2.5">
-            {supportLinks.map(link => (
-              <li key={link.label}>
-                <Link href={link.href} className="text-sm text-muted-foreground transition-colors hover:text-primary">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-5 text-sm font-semibold text-muted-foreground" dir="ltr">
-            +20 {SUPPORT_PHONE_INTL.slice(2)}
-          </p>
-        </div>
-      </div>
-
-      <div className="border-t border-border/60">
-        <div className="container flex flex-col items-center justify-between gap-2 py-5 sm:flex-row">
-          <p className="text-xs text-muted-foreground">
-            © {year} Nuvexa. {t.footer.rights}
-          </p>
           <p className="text-xs text-muted-foreground/70" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
             {locale === 'ar' ? 'صُنع بشغف للتعليم' : 'Built with passion for education'}
           </p>

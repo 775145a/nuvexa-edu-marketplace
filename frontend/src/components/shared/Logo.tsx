@@ -78,3 +78,23 @@ export function Logo({ className, wordClassName, showWord = true, size = 40, onD
     </span>
   );
 }
+
+interface WordmarkProps {
+  className?: string;
+  onDark?: boolean;
+}
+
+export function Wordmark({ className, onDark }: WordmarkProps) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-baseline gap-0.5 font-display text-[1.4rem] font-extrabold leading-none tracking-tight',
+        onDark ? 'text-white' : 'text-foreground',
+        className,
+      )}
+    >
+      <span>Nuve</span>
+      <span className="text-primary">xa</span>
+    </span>
+  );
+}
