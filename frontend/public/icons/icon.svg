@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
   <defs>
     <linearGradient id="nvx-tile" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#2563EB"/>
-      <stop offset="0.55" stop-color="#7C3AED"/>
-      <stop offset="1" stop-color="#06B6D4"/>
+      <stop stop-color="#C9111A"/>
+      <stop offset="0.55" stop-color="#EB2027"/>
+      <stop offset="1" stop-color="#FF2D17"/>
     </linearGradient>
     <linearGradient id="nvx-spark" x1="0" y1="0" x2="0" y2="48" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#67E8F9"/>
-      <stop offset="1" stop-color="#22D3EE"/>
+      <stop stop-color="#FFC9C4"/>
+      <stop offset="1" stop-color="#FF907E"/>
     </linearGradient>
   </defs>
   <rect x="2" y="2" width="44" height="44" rx="13" fill="url(#nvx-tile)"/>

@@ -44,8 +44,8 @@ export function RevenueAreaChart({ data, height = 280, formatter }: {
       <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#7c3aed" stopOpacity={0.35} />
-            <stop offset="100%" stopColor="#7c3aed" stopOpacity={0} />
+            <stop offset="0%" stopColor="#eb2027" stopOpacity={0.35} />
+            <stop offset="100%" stopColor="#eb2027" stopOpacity={0} />
           </linearGradient>
           <linearGradient id="sales" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.3} />
@@ -70,7 +70,7 @@ export function RevenueAreaChart({ data, height = 280, formatter }: {
         />
         <Tooltip content={<ChartTooltip formatter={(v: number) => (formatter ? formatter(v) : v)} />} />
         {data.some((d) => d.revenue !== undefined) && (
-          <Area type="monotone" dataKey="revenue" name="Revenue" stroke="#7c3aed" strokeWidth={2.5} fill="url(#rev)" />
+          <Area type="monotone" dataKey="revenue" name="Revenue" stroke="#eb2027" strokeWidth={2.5} fill="url(#rev)" />
         )}
         {data.some((d) => d.sales !== undefined) && (
           <Area type="monotone" dataKey="sales" name="Sales" stroke="#06b6d4" strokeWidth={2} fill="url(#sales)" />
@@ -80,7 +80,7 @@ export function RevenueAreaChart({ data, height = 280, formatter }: {
   );
 }
 
-const PIE_COLORS = ['#7c3aed', '#06b6d4', '#10b981', '#f59e0b', '#e11d48', '#6366f1', '#3b82f6', '#14b8a6'];
+const PIE_COLORS = ['#eb2027', '#06b6d4', '#10b981', '#f59e0b', '#e11d48', '#6366f1', '#3b82f6', '#14b8a6'];
 
 export function DonutChart({ data, height = 260, centerLabel, centerValue, formatter }: {
   data: Array<{ name: string; value: number }>;

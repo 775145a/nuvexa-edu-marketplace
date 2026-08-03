@@ -80,9 +80,9 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 w-full bg-background/90 backdrop-blur-xl transition-all duration-300',
+        'sticky top-0 z-50 w-full bg-white/75 backdrop-blur-xl transition-all duration-300 dark:bg-background/80',
         solid
-          ? 'border-b border-border/60 shadow-[0_4px_24px_-16px_rgba(76,29,149,0.18)]'
+          ? 'border-b border-border/60 shadow-[0_4px_24px_-16px_rgba(235,32,39,0.18)]'
           : 'border-b border-border/60',
       )}
     >
@@ -140,7 +140,7 @@ export function Navbar() {
               </Link>
               <Link
                 href="/register"
-                className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-[0_8px_20px_-8px_rgba(124,58,237,0.6)] transition-colors hover:bg-secondary"
+                className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-[0_8px_20px_-8px_rgba(235,32,39,0.6)] transition-colors hover:bg-secondary"
               >
                 {t.nav.register}
               </Link>

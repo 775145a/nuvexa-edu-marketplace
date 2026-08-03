@@ -135,7 +135,7 @@ function CoursesContent() {
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
                       course.level === 'BEGINNER' ? 'bg-emerald-100 text-emerald-700' :
                       course.level === 'INTERMEDIATE' ? 'bg-blue-100 text-blue-700' :
-                      course.level === 'ADVANCED' ? 'bg-purple-100 text-purple-700' :
+                      course.level === 'ADVANCED' ? 'bg-rose-100 text-rose-700' :
                       'bg-amber-100 text-amber-700'
                     }`}>
                       {getLevelLabel(course.level, t)}

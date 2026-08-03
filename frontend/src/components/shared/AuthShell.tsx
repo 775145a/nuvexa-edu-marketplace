@@ -14,9 +14,9 @@ interface AuthShellProps {
 export function AuthShell({ children, title, subtitle, maxWidth = 'max-w-md' }: AuthShellProps) {
   return (
     <div className="gradient-hero relative flex min-h-screen items-center justify-center overflow-hidden p-4">
-      <div className="pointer-events-none absolute -top-24 left-1/3 h-72 w-72 rounded-full bg-indigo-500/25 blur-3xl" aria-hidden="true" />
-      <div className="pointer-events-none absolute right-[8%] top-1/4 h-64 w-64 rounded-full bg-cyan-400/20 blur-3xl" aria-hidden="true" />
-      <div className="pointer-events-none absolute bottom-0 left-1/4 h-72 w-72 rounded-full bg-violet-500/20 blur-3xl" aria-hidden="true" />
+      <div className="pointer-events-none absolute -top-24 left-1/3 h-72 w-72 rounded-full bg-rose-500/25 blur-3xl" aria-hidden="true" />
+      <div className="pointer-events-none absolute right-[8%] top-1/4 h-64 w-64 rounded-full bg-amber-400/20 blur-3xl" aria-hidden="true" />
+      <div className="pointer-events-none absolute bottom-0 left-1/4 h-72 w-72 rounded-full bg-rose-500/20 blur-3xl" aria-hidden="true" />
 
       <div className={cn('relative w-full', maxWidth)}>
         <div className="mb-8 flex flex-col items-center text-center">

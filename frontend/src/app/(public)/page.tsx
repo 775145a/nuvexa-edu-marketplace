@@ -118,7 +118,7 @@ export default function HomePage() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
               <Link
                 href="/courses"
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-semibold text-primary-foreground shadow-[0_10px_28px_-10px_rgba(124,58,237,0.65)] transition-colors hover:bg-secondary"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-semibold text-primary-foreground shadow-[0_10px_28px_-10px_rgba(235,32,39,0.65)] transition-colors hover:bg-secondary"
               >
                 <PlayCircle className="h-5 w-5" />
                 {t.home.browseCourses}
@@ -170,7 +170,7 @@ export default function HomePage() {
                 <Link
                   key={cat.id}
                   href={`/courses?category=${cat.id}`}
-                  className="group flex flex-col items-center rounded-2xl border border-border bg-card px-3 py-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_16px_32px_-16px_rgba(124,58,237,0.35)]"
+                  className="group flex flex-col items-center rounded-2xl border border-border bg-card px-3 py-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_16px_32px_-16px_rgba(235,32,39,0.35)]"
                 >
                   <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-2xl transition-transform duration-300 group-hover:scale-110">
                     {cat.icon || '📚'}
@@ -262,7 +262,7 @@ export default function HomePage() {
                 <Link
                   key={inst.id}
                   href={`/courses?instructor=${inst.id}`}
-                  className="group flex flex-col items-center rounded-2xl border border-border bg-card px-5 py-7 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_16px_32px_-16px_rgba(124,58,237,0.35)]"
+                  className="group flex flex-col items-center rounded-2xl border border-border bg-card px-5 py-7 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_16px_32px_-16px_rgba(235,32,39,0.35)]"
                 >
                   <div className="relative h-20 w-20 overflow-hidden rounded-full border-2 border-primary/20">
                     {inst.avatarUrl ? (
@@ -343,7 +343,7 @@ export default function HomePage() {
         <div className="container">
           <div className="relative overflow-hidden rounded-[28px] gradient-primary p-8 text-center text-white md:p-14">
             <div className="pointer-events-none absolute -top-24 start-1/4 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-28 end-1/4 h-72 w-72 rounded-full bg-violet-300/25 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-28 end-1/4 h-72 w-72 rounded-full bg-white/20 blur-3xl" />
             <div className="relative">
               <h2 className="font-display text-3xl font-extrabold md:text-4xl">{t.home.ctaTitle}</h2>
               <p className="mx-auto mt-3 max-w-xl text-white/85">{t.home.ctaDesc}</p>
@@ -444,7 +444,7 @@ function HeroVisual({ t, latestCourse, loading }: { t: any; latestCourse: any; l
       {course ? (
         <Link
           href={`/courses/${course.slug}`}
-          className="group block overflow-hidden rounded-3xl border border-border bg-card shadow-[0_32px_64px_-32px_rgba(76,29,149,0.35)] transition-all duration-300 hover:-translate-y-1"
+          className="group block overflow-hidden rounded-3xl border border-border bg-card shadow-[0_32px_64px_-32px_rgba(235,32,39,0.35)] transition-all duration-300 hover:-translate-y-1"
         >
           <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
             {course.thumbnailUrl ? (
@@ -509,7 +509,7 @@ function HomeCourseCard({ course, t, locale }: { course: Course; t: any; locale:
   return (
     <Link
       href={`/courses/${course.slug}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_24px_48px_-24px_rgba(124,58,237,0.4)]"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_24px_48px_-24px_rgba(235,32,39,0.4)]"
     >
       <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary/15 to-accent/15">
         {course.thumbnailUrl ? (

@@ -109,9 +109,9 @@ const config: Config = {
       boxShadow: {
         soft: '0 2px 12px rgba(15, 30, 60, 0.06)',
         card: '0 1px 3px rgba(15, 30, 60, 0.05), 0 8px 30px -12px rgba(15, 30, 60, 0.12)',
-        glow: '0 0 0 1px rgba(124, 58, 237, 0.12), 0 8px 40px -8px rgba(124, 58, 237, 0.35)',
+        glow: '0 0 0 1px rgba(235, 32, 39, 0.12), 0 8px 40px -8px rgba(235, 32, 39, 0.35)',
         glowCyan: '0 0 0 1px rgba(6, 182, 212, 0.15), 0 8px 40px -8px rgba(6, 182, 212, 0.35)',
-        hero: '0 24px 60px -20px rgba(37, 99, 235, 0.28), 0 12px 32px -16px rgba(124, 58, 237, 0.22)',
+        hero: '0 24px 60px -20px rgba(235, 32, 39, 0.28), 0 12px 32px -16px rgba(235, 32, 39, 0.22)',
       },
     },
   },

@@ -156,7 +156,7 @@ export default function CourseDetailPage() {
       {/* ============ HERO ============ */}
       <section className="relative overflow-hidden bg-gradient-to-b from-primary/[0.05] via-background to-background">
         <div className="blob start-[5%] top-[-10%] h-[360px] w-[360px] bg-blue-300/50" />
-        <div className="blob end-[-6%] top-[15%] h-[320px] w-[320px] bg-violet-300/50" style={{ animationDelay: '-8s' }} />
+        <div className="blob end-[-6%] top-[15%] h-[320px] w-[320px] bg-rose-300/40" style={{ animationDelay: '-8s' }} />
 
         <div className="container relative py-10 md:py-16">
           <div className="grid gap-10 lg:grid-cols-3">
@@ -207,7 +207,7 @@ export default function CourseDetailPage() {
                   'rounded-full px-3 py-1 text-xs font-bold',
                   course.level === 'BEGINNER' ? 'bg-emerald-500/10 text-emerald-600'
                     : course.level === 'INTERMEDIATE' ? 'bg-blue-500/10 text-blue-600'
-                      : course.level === 'ADVANCED' ? 'bg-violet-500/10 text-violet-600'
+                      : course.level === 'ADVANCED' ? 'bg-rose-500/10 text-rose-600'
                         : 'bg-amber-500/10 text-amber-600',
                 )}>
                   {levelLabel(course.level)}
