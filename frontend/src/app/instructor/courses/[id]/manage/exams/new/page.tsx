@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useI18n } from '@/lib/i18n/I18nProvider';
 import { examApi } from '@/lib/api';
 
-export default function CreateExamPage() {
+function CreateExamForm() {
   const { t, locale } = useI18n();
   const router = useRouter();
   const params = useParams();
@@ -83,5 +83,13 @@ export default function CreateExamPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function CreateExamPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" /></div>}>
+      <CreateExamForm />
+    </Suspense>
   );
 }

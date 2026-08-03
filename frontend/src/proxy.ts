@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const isProd = process.env.NODE_ENV === 'production';
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const nonce = crypto.randomUUID().replace(/-/g, '');
 
   const csp = [
