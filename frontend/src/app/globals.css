@@ -5,21 +5,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Alexandria:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --background: 210 40% 98%;
+  --background: 0 0% 100%;
   --foreground: 222 47% 11%;
   --card: 0 0% 100%;
   --card-foreground: 222 47% 11%;
   --popover: 0 0% 100%;
   --popover-foreground: 222 47% 11%;
 
-  --primary: 221 83% 53%;
+  --primary: 262 83% 56%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 262 83% 58%;
+  --secondary: 262 84% 44%;
   --secondary-foreground: 0 0% 100%;
 
-  --accent: 190 95% 50%;
-  --accent-foreground: 224 30% 10%;
+  --accent: 262 83% 66%;
+  --accent-foreground: 262 47% 12%;
 
   --success: 160 84% 39%;
   --success-foreground: 0 0% 100%;
@@ -27,33 +27,33 @@
   --warning: 38 92% 50%;
   --warning-foreground: 224 30% 10%;
 
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 45%;
+  --muted: 262 33% 96%;
+  --muted-foreground: 258 10% 45%;
   --destructive: 346 84% 48%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 221 83% 53%;
+  --border: 262 30% 91%;
+  --input: 262 30% 91%;
+  --ring: 262 83% 56%;
   --radius: 1.5rem;
 }
 
 .dark {
-  --background: 222 16% 7%;
+  --background: 248 24% 8%;
   --foreground: 220 20% 93%;
-  --card: 222 14% 10%;
+  --card: 248 20% 11%;
   --card-foreground: 220 20% 93%;
-  --popover: 222 14% 10%;
+  --popover: 248 20% 11%;
   --popover-foreground: 220 20% 93%;
 
-  --primary: 221 70% 60%;
+  --primary: 262 80% 64%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 262 70% 60%;
+  --secondary: 262 80% 56%;
   --secondary-foreground: 0 0% 100%;
 
-  --accent: 190 100% 46%;
-  --accent-foreground: 224 30% 10%;
+  --accent: 262 70% 46%;
+  --accent-foreground: 262 40% 95%;
 
   --success: 160 70% 42%;
   --success-foreground: 0 0% 100%;
@@ -61,14 +61,14 @@
   --warning: 38 92% 52%;
   --warning-foreground: 224 30% 10%;
 
-  --muted: 222 14% 15%;
-  --muted-foreground: 220 10% 62%;
+  --muted: 248 18% 15%;
+  --muted-foreground: 258 15% 62%;
   --destructive: 346 70% 52%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 222 14% 18%;
-  --input: 222 14% 18%;
-  --ring: 221 83% 60%;
+  --border: 248 16% 18%;
+  --input: 248 16% 18%;
+  --ring: 262 80% 64%;
   --radius: 1.5rem;
 }
 
@@ -88,7 +88,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid #7c3aed;
   outline-offset: 2px;
 }
 
@@ -111,10 +111,10 @@ body { transition: background-color 0.35s ease, color 0.35s ease; }
     background: linear-gradient(135deg, #0b1224 0%, #101c3a 40%, #16285c 100%);
   }
   .gradient-primary {
-    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 55%, #06b6d4 130%);
+    background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 55%, #9333ea 130%);
   }
   .gradient-primary-soft {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.12) 0%, rgba(124, 58, 237, 0.12) 55%, rgba(6, 182, 212, 0.12) 130%);
+    background: linear-gradient(135deg, rgba(109, 40, 217, 0.12) 0%, rgba(124, 58, 237, 0.12) 55%, rgba(147, 51, 234, 0.12) 130%);
   }
   .gradient-border {
     position: relative;
@@ -126,22 +126,22 @@ body { transition: background-color 0.35s ease, color 0.35s ease; }
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.5), rgba(124, 58, 237, 0.5), rgba(6, 182, 212, 0.5));
+    background: linear-gradient(135deg, rgba(109, 40, 217, 0.5), rgba(124, 58, 237, 0.5), rgba(147, 51, 234, 0.5));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
   }
   .btn-gradient {
-    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 55%, #06b6d4 130%);
+    background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 55%, #9333ea 130%);
     background-size: 150% 150%;
     transition: background-position 0.35s ease, transform 0.2s ease, box-shadow 0.25s ease;
-    box-shadow: 0 8px 24px -8px rgba(37, 99, 235, 0.45), 0 4px 12px -4px rgba(124, 58, 237, 0.35);
+    box-shadow: 0 8px 24px -8px rgba(124, 58, 237, 0.45), 0 4px 12px -4px rgba(147, 51, 234, 0.35);
   }
   .btn-gradient:hover:not(:disabled) {
     background-position: 100% 50%;
     transform: translateY(-1px);
-    box-shadow: 0 14px 32px -10px rgba(37, 99, 235, 0.55), 0 8px 20px -6px rgba(6, 182, 212, 0.4);
+    box-shadow: 0 14px 32px -10px rgba(124, 58, 237, 0.55), 0 8px 20px -6px rgba(147, 51, 234, 0.4);
   }
   .btn-gradient:active:not(:disabled) {
     transform: translateY(0) scale(0.98);
@@ -152,27 +152,27 @@ body { transition: background-color 0.35s ease, color 0.35s ease; }
   }
   .gradient-hero {
     background:
-      radial-gradient(1100px 480px at 12% -8%, rgba(99, 102, 241, 0.30) 0%, transparent 55%),
-      radial-gradient(900px 460px at 95% -6%, rgba(34, 211, 238, 0.25) 0%, transparent 55%),
-      radial-gradient(700px 520px at 80% 110%, rgba(124, 58, 237, 0.28) 0%, transparent 55%),
-      linear-gradient(135deg, #0b1224 0%, #101c3a 46%, #0d1f3d 100%);
+      radial-gradient(1100px 480px at 12% -8%, rgba(124, 58, 237, 0.30) 0%, transparent 55%),
+      radial-gradient(900px 460px at 95% -6%, rgba(147, 51, 234, 0.22) 0%, transparent 55%),
+      radial-gradient(700px 520px at 80% 110%, rgba(109, 40, 217, 0.28) 0%, transparent 55%),
+      linear-gradient(135deg, #130826 0%, #1c0f38 46%, #241048 100%);
   }
   .card-hover {
     transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.3s ease;
   }
   .card-hover:hover {
     transform: translateY(-6px);
-    box-shadow: 0 24px 48px -16px rgba(30, 64, 175, 0.18), 0 8px 24px -12px rgba(124, 58, 237, 0.14);
+    box-shadow: 0 24px 48px -16px rgba(109, 40, 217, 0.18), 0 8px 24px -12px rgba(124, 58, 237, 0.14);
   }
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-secondary via-accent to-success;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-secondary to-primary;
   }
   .logo-gradient-text {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #2563eb 0%, #7c3aed 55%, #06b6d4 130%);
+    background-image: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
   }
   .dark .logo-gradient-text {
-    background-image: linear-gradient(135deg, #60a5fa 0%, #a78bfa 55%, #22d3ee 130%);
+    background-image: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%);
   }
   .gradient-purple {
     background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 50%, #9333ea 100%);

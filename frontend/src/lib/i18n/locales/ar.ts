@@ -59,6 +59,8 @@ const ar = {
   },
   home: {
     heroTitle: 'تعلم كل شيء من أي مكان',
+    heroTitleStart: 'تعلّم كل شيء من',
+    heroTitleAccent: 'أي مكان',
     heroSubtitle: 'منصة تعليمية متكاملة تقدم كورسات احترافية في جميع المجالات',
     startLearning: 'ابدأ التعلم الآن',
     browseCourses: 'تصفح الكورسات',

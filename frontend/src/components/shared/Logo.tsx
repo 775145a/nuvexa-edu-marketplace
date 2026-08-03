@@ -23,18 +23,18 @@ export function LogoMark({ size = 40, className }: { size?: number; className?: 
       viewBox="0 0 48 48"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={cn('drop-shadow-[0_6px_16px_rgba(37,99,235,0.35)]', className)}
+      className={cn('drop-shadow-[0_6px_16px_rgba(124,58,237,0.35)]', className)}
       aria-hidden="true"
     >
       <defs>
         <linearGradient id={tileId} x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#2563EB" />
+          <stop stopColor="#6D28D9" />
           <stop offset="0.55" stopColor="#7C3AED" />
-          <stop offset="1" stopColor="#06B6D4" />
+          <stop offset="1" stopColor="#9333EA" />
         </linearGradient>
         <linearGradient id={sparkId} x1="0" y1="0" x2="0" y2="48" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#67E8F9" />
-          <stop offset="1" stopColor="#22D3EE" />
+          <stop stopColor="#C4B5FD" />
+          <stop offset="1" stopColor="#A78BFA" />
         </linearGradient>
       </defs>
 

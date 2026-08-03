@@ -29,14 +29,11 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative mt-16 overflow-hidden border-t border-border/60 bg-card/60">
-      <div className="pointer-events-none absolute -top-40 right-1/4 h-80 w-80 rounded-full bg-secondary/10 blur-3xl" aria-hidden="true" />
-      <div className="pointer-events-none absolute -bottom-32 left-1/5 h-72 w-72 rounded-full bg-accent/10 blur-3xl" aria-hidden="true" />
-
-      <div className="container relative grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+    <footer className="relative mt-20 border-t border-border bg-background">
+      <div className="container grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Link href="/" className="inline-flex transition-opacity hover:opacity-90">
-            <Logo size={42} />
+            <Logo size={40} />
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">{t.footer.tagline}</p>
           <div className="mt-5 flex items-center gap-2">
@@ -44,7 +41,7 @@ export function Footer() {
               href={WHATSAPP_LINK('')}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-all duration-200 hover:border-emerald-400 hover:text-emerald-500 hover:-translate-y-0.5"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-all duration-200 hover:border-primary/50 hover:text-primary"
               aria-label={t.footer.whatsapp}
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
@@ -53,7 +50,7 @@ export function Footer() {
             </a>
             <a
               href="mailto:almisriualqaysar@gmail.com"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-all duration-200 hover:border-blue-400 hover:text-blue-500 hover:-translate-y-0.5"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-all duration-200 hover:border-primary/50 hover:text-primary"
               aria-label={t.footer.email}
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -65,7 +62,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">{t.footer.explore}</h4>
+          <h4 className="text-sm font-bold text-foreground">{t.footer.explore}</h4>
           <ul className="mt-4 space-y-2.5">
             {exploreLinks.map(link => (
               <li key={link.label}>
@@ -78,7 +75,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">{t.footer.company}</h4>
+          <h4 className="text-sm font-bold text-foreground">{t.footer.company}</h4>
           <ul className="mt-4 space-y-2.5">
             {platformLinks.map(link => (
               <li key={link.label}>
@@ -91,7 +88,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">{t.footer.support}</h4>
+          <h4 className="text-sm font-bold text-foreground">{t.footer.support}</h4>
           <ul className="mt-4 space-y-2.5">
             {supportLinks.map(link => (
               <li key={link.label}>
@@ -107,7 +104,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="relative border-t border-border/60">
+      <div className="border-t border-border/60">
         <div className="container flex flex-col items-center justify-between gap-2 py-5 sm:flex-row">
           <p className="text-xs text-muted-foreground">
             © {year} Nuvexa. {t.footer.rights}

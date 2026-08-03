@@ -59,6 +59,8 @@ const en = {
   },
   home: {
     heroTitle: 'Learn Everything from Anywhere',
+    heroTitleStart: 'Learn everything',
+    heroTitleAccent: 'from anywhere',
     heroSubtitle: 'A comprehensive learning platform offering professional courses in all fields',
     startLearning: 'Start Learning Now',
     browseCourses: 'Browse Courses',
