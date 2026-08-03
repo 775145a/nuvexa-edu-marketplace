@@ -1,8 +1,19 @@
 import { Router } from 'express';
 import { prisma } from '../../services/prisma';
 import { authenticate, AuthRequest, authorize } from '../middleware/auth';
+import { logAudit } from '../../services/audit';
 
 const router = Router();
+
+function adminIp(req: any): string | null {
+  return (
+    req.ip ||
+    (typeof req.headers?.['x-forwarded-for'] === 'string'
+      ? req.headers['x-forwarded-for'].split(',')[0].trim()
+      : null) ||
+    null
+  );
+}
 
 function normalizeCode(code: string): string {
   return code.trim().toUpperCase();
@@ -35,6 +46,14 @@ router.post('/', authenticate, authorize('ADMIN'), async (req: AuthRequest, res)
       },
     });
     res.status(201).json({ success: true, data: coupon });
+    await logAudit({
+      adminId: req.userId!,
+      action: 'COUPON_CREATE',
+      entity: 'Coupon',
+      entityId: coupon.id,
+      after: { code: coupon.code, discountType, value },
+      ipAddress: adminIp(req),
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -53,9 +72,10 @@ router.get('/', authenticate, authorize('ADMIN'), async (_req, res) => {
   }
 });
 
-router.patch('/:id', authenticate, authorize('ADMIN'), async (req, res) => {
+router.patch('/:id', authenticate, authorize('ADMIN'), async (req: AuthRequest, res) => {
   try {
     const { isActive, maxUses, value, expiresAt } = req.body;
+    const previous = await prisma.coupon.findUnique({ where: { id: req.params.id } });
     const coupon = await prisma.coupon.update({
       where: { id: req.params.id },
       data: {
@@ -66,15 +86,35 @@ router.patch('/:id', authenticate, authorize('ADMIN'), async (req, res) => {
       },
     });
     res.json({ success: true, data: coupon });
+    await logAudit({
+      adminId: req.userId!,
+      action: 'COUPON_UPDATE',
+      entity: 'Coupon',
+      entityId: coupon.id,
+      before: previous
+        ? { isActive: previous.isActive, maxUses: previous.maxUses, value: previous.value }
+        : undefined,
+      after: { isActive: coupon.isActive, maxUses: coupon.maxUses, value: coupon.value },
+      ipAddress: adminIp(req),
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-router.delete('/:id', authenticate, authorize('ADMIN'), async (req, res) => {
+router.delete('/:id', authenticate, authorize('ADMIN'), async (req: AuthRequest, res) => {
   try {
+    const previous = await prisma.coupon.findUnique({ where: { id: req.params.id } });
     await prisma.coupon.delete({ where: { id: req.params.id } });
     res.json({ success: true, message: 'Coupon deleted' });
+    await logAudit({
+      adminId: req.userId!,
+      action: 'COUPON_DELETE',
+      entity: 'Coupon',
+      entityId: req.params.id,
+      before: previous ? { code: previous.code } : undefined,
+      ipAddress: adminIp(req),
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }

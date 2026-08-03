@@ -7,8 +7,19 @@ import { logger } from '../../services/logger';
 import { cache } from '../../services/cache';
 import { getMetricsSnapshot } from '../../services/metrics';
 import { completeOrderAndEnroll } from '../../services/payments/completeOrder';
+import { logAudit } from '../../services/audit';
 
 const router = Router();
+
+function adminIp(req: any): string | null {
+  return (
+    req.ip ||
+    (typeof req.headers?.['x-forwarded-for'] === 'string'
+      ? req.headers['x-forwarded-for'].split(',')[0].trim()
+      : null) ||
+    null
+  );
+}
 
 router.use(authenticate);
 router.use(authorize('ADMIN'));
@@ -214,6 +225,15 @@ router.put('/courses/:id/review', async (req: AuthRequest, res) => {
     });
     await cache.delByPrefix('courses:list:');
     await cache.delByPrefix('categories:');
+    await logAudit({
+      adminId: req.userId!,
+      action: `COURSE_${action}`,
+      entity: 'Course',
+      entityId: course.id,
+      before: { status: course.status },
+      after: { status: updated.status, comments },
+      ipAddress: adminIp(req),
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -340,6 +360,15 @@ router.put('/users/:id/toggle-status', async (req: AuthRequest, res) => {
     });
 
     res.json({ success: true, data: { id: updated.id, isActive: updated.isActive } });
+    await logAudit({
+      adminId: req.userId!,
+      action: 'USER_TOGGLE_STATUS',
+      entity: 'User',
+      entityId: user.id,
+      before: { isActive: user.isActive },
+      after: { isActive: updated.isActive },
+      ipAddress: adminIp(req),
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -410,6 +439,14 @@ router.post('/payments/confirm', async (req: AuthRequest, res) => {
         message: `تم التحقق من رقم العملية وتأكيد وصول المبلغ للطلب ${payment.order.orderNumber}. كورسك مفعّل الآن.`,
         link: '/learn',
       });
+      await logAudit({
+        adminId: req.userId!,
+        action: 'PAYMENT_CONFIRM',
+        entity: 'Payment',
+        entityId: payment.id,
+        after: { orderId: payment.orderId, action },
+        ipAddress: adminIp(req),
+      });
       return res.json({ success: true, message: result.alreadyCompleted ? 'Payment already completed' : 'Payment confirmed and course activated' });
     }
 
@@ -420,6 +457,14 @@ router.post('/payments/confirm', async (req: AuthRequest, res) => {
       title: 'لم يتم تأكيد الدفع ❌',
       message: `تعذر التحقق من رقم العملية للطلب ${payment.order.orderNumber}. تواصل مع الدعم إن كان المبلغ قد وصل فعلًا.`,
       link: '/orders',
+    });
+    await logAudit({
+      adminId: req.userId!,
+      action: 'PAYMENT_REJECT',
+      entity: 'Payment',
+      entityId: payment.id,
+      after: { orderId: payment.orderId, action },
+      ipAddress: adminIp(req),
     });
     return res.json({ success: true, message: 'Payment rejected and order cancelled' });
   } catch (err: any) {
@@ -449,6 +494,14 @@ router.post('/categories', async (req: AuthRequest, res) => {
     });
     res.status(201).json({ success: true, data: category });
     await cache.del('categories:all');
+    await logAudit({
+      adminId: req.userId!,
+      action: 'CATEGORY_CREATE',
+      entity: 'Category',
+      entityId: category.id,
+      after: { name, slug },
+      ipAddress: adminIp(req),
+    });
   } catch (err: any) {
     if (err.code === 'P2002') return res.status(409).json({ success: false, message: 'Category already exists' });
     res.status(500).json({ success: false, message: err.message });
@@ -463,6 +516,15 @@ router.put('/categories/:id', async (req: AuthRequest, res) => {
     });
     res.json({ success: true, data: category });
     await cache.del('categories:all');
+    await logAudit({
+      adminId: req.userId!,
+      action: 'CATEGORY_UPDATE',
+      entity: 'Category',
+      entityId: req.params.id,
+      before: { name: category.name },
+      after: req.body,
+      ipAddress: adminIp(req),
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -470,9 +532,19 @@ router.put('/categories/:id', async (req: AuthRequest, res) => {
 
 router.delete('/categories/:id', async (req: AuthRequest, res) => {
   try {
+    const existing = await prisma.category.findUnique({ where: { id: req.params.id } });
     await prisma.category.update({ where: { id: req.params.id }, data: { isActive: false } });
     res.json({ success: true, message: 'Category disabled' });
     await cache.del('categories:all');
+    await logAudit({
+      adminId: req.userId!,
+      action: 'CATEGORY_DISABLE',
+      entity: 'Category',
+      entityId: req.params.id,
+      before: { isActive: existing?.isActive },
+      after: { isActive: false },
+      ipAddress: adminIp(req),
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -495,6 +567,15 @@ router.put('/settings/:key', async (req: AuthRequest, res) => {
       create: { key: req.params.key, value: req.body.value },
     });
     res.json({ success: true, data: setting });
+    await logAudit({
+      adminId: req.userId!,
+      action: 'SETTINGS_UPDATE',
+      entity: 'PlatformSettings',
+      entityId: setting.key,
+      before: { key: req.params.key },
+      after: { key: req.params.key, value: req.body.value },
+      ipAddress: adminIp(req),
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -518,11 +599,53 @@ router.get('/instructors', async (_req: AuthRequest, res) => {
 
 router.put('/instructors/:id/verify', async (req: AuthRequest, res) => {
   try {
+    const previous = await prisma.instructorProfile.findUnique({ where: { userId: req.params.id } });
     const profile = await prisma.instructorProfile.update({
       where: { userId: req.params.id },
       data: { isVerified: req.body.verified ?? true },
     });
     res.json({ success: true, data: profile });
+    await logAudit({
+      adminId: req.userId!,
+      action: 'INSTRUCTOR_VERIFY',
+      entity: 'InstructorProfile',
+      entityId: req.params.id,
+      before: { isVerified: previous?.isVerified },
+      after: { isVerified: profile.isVerified },
+      ipAddress: adminIp(req),
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+router.get('/audit-logs', async (req: AuthRequest, res) => {
+  try {
+    const { adminId, action, entity } = req.query as Record<string, string | undefined>;
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const pageSize = Math.min(100, Math.max(1, parseInt(req.query.pageSize as string) || 20));
+
+    const where: any = {};
+    if (adminId) where.adminId = adminId;
+    if (action) where.action = action;
+    if (entity) where.entity = entity;
+
+    const [total, logs] = await Promise.all([
+      prisma.auditLog.count({ where }),
+      prisma.auditLog.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: { admin: { select: { id: true, fullName: true, email: true } } },
+      }),
+    ]);
+
+    res.json({
+      success: true,
+      data: logs,
+      meta: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) },
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
