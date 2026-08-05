@@ -137,7 +137,7 @@ router.put('/lectures/:id/progress', authenticate, async (req: AuthRequest, res)
             type: 'CERTIFICATE',
             title: '🎓 استلمت شهادتك!',
             message: `مبروك! أكملت كورس «${courseTitle}» وحصلت على شهادة إتمام.`,
-            link: '/certificates',
+            link: '/student/certificates',
           });
 
           if (student?.email) {
@@ -150,7 +150,7 @@ router.put('/lectures/:id/progress', authenticate, async (req: AuthRequest, res)
                   <p style="color:#475569; line-height:1.7;">أكملت بنجاح كورس <strong>«${courseTitle}»</strong>.</p>
                   <p style="color:#475569; line-height:1.7;">رقم شهادتك: <code style="background:#f1f5f9; padding:2px 8px; border-radius:6px; direction:ltr; display:inline-block;">${certificate.certificateNumber}</code></p>
                   <p style="color:#475569; line-height:1.7;">يمكنك تحميل الشهادة من لوحة الطالب.</p>
-                  <a href="${process.env.FRONTEND_URL || 'https://nuvexa-edu.vercel.app'}/certificates" style="display:inline-block; margin-top:12px; background:#4f46e5; color:#fff; padding:10px 20px; border-radius:8px; text-decoration:none;">عرض شهادتي</a>
+                  <a href="${process.env.FRONTEND_URL || 'https://nuvexa-edu.vercel.app'}/student/certificates" style="display:inline-block; margin-top:12px; background:#4f46e5; color:#fff; padding:10px 20px; border-radius:8px; text-decoration:none;">عرض شهادتي</a>
                 </div>
               `,
             }).catch((err) => logger.warn(`[certificate] email failed: ${err instanceof Error ? err.message : err}`));
